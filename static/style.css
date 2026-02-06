@@ -5,7 +5,7 @@
    2-4 colors, device mockups, non-aggressive CTAs
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap');
+/* Fonts loaded via base.html with non-blocking preload */
 
 /* ============================================
    DESIGN TOKENS
@@ -68,7 +68,6 @@
 }
 
 html {
-    scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -171,7 +170,7 @@ button {
     font-weight: 500;
     color: var(--text-secondary);
     border-radius: var(--radius-md);
-    transition: all var(--duration) var(--ease);
+    transition: background var(--duration) var(--ease), transform var(--duration) var(--ease), opacity var(--duration) var(--ease), border-color var(--duration) var(--ease);
 }
 
 .l-nav-link:hover {
@@ -202,7 +201,7 @@ button {
     font-size: 0.9rem;
     font-weight: 600;
     border-radius: var(--radius-md);
-    transition: all var(--duration) var(--ease);
+    transition: background var(--duration) var(--ease), transform var(--duration) var(--ease), opacity var(--duration) var(--ease), border-color var(--duration) var(--ease);
 }
 
 .l-btn--primary {
@@ -736,7 +735,7 @@ button {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-xl);
-    transition: all var(--duration) var(--ease);
+    transition: background var(--duration) var(--ease), transform var(--duration) var(--ease), opacity var(--duration) var(--ease), border-color var(--duration) var(--ease);
 }
 
 .l-step:hover {
@@ -1077,7 +1076,7 @@ button {
     font-weight: 500;
     color: var(--text-muted);
     border-radius: var(--radius-md);
-    transition: all var(--duration) var(--ease);
+    transition: background var(--duration) var(--ease), transform var(--duration) var(--ease), opacity var(--duration) var(--ease), border-color var(--duration) var(--ease);
 }
 
 .nav-link:hover {
@@ -1140,7 +1139,7 @@ button {
     cursor: pointer;
     border-radius: var(--radius-sm);
     color: var(--text-muted);
-    transition: all var(--duration) var(--ease);
+    transition: background var(--duration) var(--ease), transform var(--duration) var(--ease), opacity var(--duration) var(--ease), border-color var(--duration) var(--ease);
 }
 
 .logout-btn:hover {
@@ -1229,7 +1228,7 @@ button {
     font-size: 0.875rem;
     font-weight: 600;
     border-radius: var(--radius-md);
-    transition: all var(--duration) var(--ease);
+    transition: background var(--duration) var(--ease), transform var(--duration) var(--ease), opacity var(--duration) var(--ease), border-color var(--duration) var(--ease);
     cursor: pointer;
     border: none;
 }
@@ -1306,7 +1305,7 @@ button {
     background: var(--bg-subtle);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-md);
-    transition: all var(--duration) var(--ease);
+    transition: background var(--duration) var(--ease), transform var(--duration) var(--ease), opacity var(--duration) var(--ease), border-color var(--duration) var(--ease);
 }
 
 .form-input:focus {
@@ -1389,7 +1388,7 @@ textarea.form-input {
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-xl);
     padding: 24px;
-    transition: all var(--duration) var(--ease);
+    transition: background var(--duration) var(--ease), transform var(--duration) var(--ease), opacity var(--duration) var(--ease), border-color var(--duration) var(--ease);
 }
 
 .stat-card:hover {
@@ -1428,7 +1427,7 @@ textarea.form-input {
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-xl);
     padding: 24px;
-    transition: all var(--duration) var(--ease);
+    transition: background var(--duration) var(--ease), transform var(--duration) var(--ease), opacity var(--duration) var(--ease), border-color var(--duration) var(--ease);
     cursor: pointer;
 }
 
@@ -1751,7 +1750,7 @@ textarea.form-input {
     border: 1px solid var(--border-default);
     border-radius: var(--radius-lg);
     cursor: pointer;
-    transition: all var(--duration) var(--ease);
+    transition: background var(--duration) var(--ease), transform var(--duration) var(--ease), opacity var(--duration) var(--ease), border-color var(--duration) var(--ease);
     text-decoration: none;
 }
 
@@ -1859,7 +1858,7 @@ textarea.form-input {
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all var(--duration) var(--ease);
+    transition: background var(--duration) var(--ease), transform var(--duration) var(--ease), opacity var(--duration) var(--ease), border-color var(--duration) var(--ease);
     text-align: center;
     font-family: inherit;
     color: var(--text-secondary);
@@ -2238,7 +2237,7 @@ textarea.form-input {
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-full);
     cursor: pointer;
-    transition: all var(--duration);
+    transition: background var(--duration), transform var(--duration), opacity var(--duration), border-color var(--duration);
 }
 
 .reaction-btn:hover {
@@ -2270,7 +2269,7 @@ textarea.form-input {
     border: 1px dashed var(--border-subtle);
     border-radius: var(--radius-full);
     cursor: pointer;
-    transition: all var(--duration);
+    transition: background var(--duration), transform var(--duration), opacity var(--duration), border-color var(--duration);
 }
 
 .reaction-add:hover {
@@ -2447,7 +2446,7 @@ select.form-input {
     padding: 8px;
     color: var(--text-secondary);
     border-radius: var(--radius-sm);
-    transition: all var(--duration) var(--ease);
+    transition: background var(--duration) var(--ease), transform var(--duration) var(--ease), opacity var(--duration) var(--ease), border-color var(--duration) var(--ease);
 }
 
 .mobile-menu-btn:hover {
@@ -2547,7 +2546,7 @@ select.form-input {
     color: var(--text-muted);
     border-radius: var(--radius-md);
     margin-bottom: 16px;
-    transition: all var(--duration) var(--ease);
+    transition: background var(--duration) var(--ease), transform var(--duration) var(--ease), opacity var(--duration) var(--ease), border-color var(--duration) var(--ease);
 }
 
 .back-link:hover {
@@ -2964,7 +2963,7 @@ select.form-input {
     border-radius: var(--radius-lg);
     text-decoration: none;
     color: var(--text-primary);
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
 }
 
 .onboarding-card:hover {
@@ -3245,7 +3244,7 @@ select.form-input {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all var(--duration);
+    transition: background var(--duration), transform var(--duration), opacity var(--duration), border-color var(--duration);
     flex-shrink: 0;
 }
 
@@ -3336,7 +3335,7 @@ select.form-input {
     height: 36px;
     border-radius: var(--radius-md);
     color: var(--text-muted);
-    transition: all var(--duration) var(--ease);
+    transition: background var(--duration) var(--ease), transform var(--duration) var(--ease), opacity var(--duration) var(--ease), border-color var(--duration) var(--ease);
 }
 
 .notif-bell:hover,
@@ -3378,7 +3377,7 @@ select.form-input {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
-    transition: all var(--duration);
+    transition: background var(--duration), transform var(--duration), opacity var(--duration), border-color var(--duration);
     position: relative;
 }
 
@@ -3461,7 +3460,7 @@ select.form-input {
     border-radius: var(--radius-xl);
     padding: 28px 24px;
     text-align: center;
-    transition: all var(--duration) var(--ease);
+    transition: background var(--duration) var(--ease), transform var(--duration) var(--ease), opacity var(--duration) var(--ease), border-color var(--duration) var(--ease);
 }
 
 .achievement-card:hover {
@@ -3536,7 +3535,7 @@ select.form-input {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
-    transition: all var(--duration);
+    transition: background var(--duration), transform var(--duration), opacity var(--duration), border-color var(--duration);
 }
 
 .achievement-mini:hover {
@@ -3751,7 +3750,7 @@ img.comment-avatar.avatar-img {
     justify-content: center;
     cursor: pointer;
     color: var(--text-secondary);
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
 }
 
 .avatar-upload-btn:hover {
@@ -3838,7 +3837,7 @@ img.comment-avatar.avatar-img {
     font-size: 0.7rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
     white-space: nowrap;
     text-transform: uppercase;
     letter-spacing: 0.03em;
@@ -4585,4 +4584,33 @@ img.tab-avatar {
 @keyframes checkin-flash {
     0% { background-color: rgba(16, 185, 129, 0.2); }
     100% { background-color: transparent; }
+}
+
+/* ============================================
+   PERFORMANCE: REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ============================================
+   PERFORMANCE: CONTENT VISIBILITY
+   ============================================ */
+
+.challenge-card,
+.checkin-item,
+.comment-item,
+.leaderboard-row,
+.achievement-card {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 80px;
+}
+
+.skeleton {
+    animation-iteration-count: 5;
 }

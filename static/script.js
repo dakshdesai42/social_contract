@@ -472,6 +472,7 @@
         },
 
         async poll() {
+            if (document.hidden) return; // Don't poll when tab is hidden
             try {
                 const resp = await fetch('/api/notifications/unread-count');
                 if (!resp.ok) return;

@@ -121,6 +121,10 @@ def set_security_headers(response):
         "manifest-src 'self'; "
         "frame-ancestors 'self'"
     )
+
+    # Cache static assets aggressively (CSS, JS, images, icons)
+    if request.path.startswith('/static/'):
+        response.headers['Cache-Control'] = 'public, max-age=2592000'  # 30 days
     return response
 
 
