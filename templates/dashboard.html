@@ -23,6 +23,26 @@
         </div>
     </header>
 
+    <section class="action-rail">
+        <a href="{{ url_for('create_challenge') }}?template=exercise&guided=1" class="action-rail-card action-rail-primary">
+            <div class="action-rail-title">Launch a challenge</div>
+            <div class="action-rail-subtitle">Start from template and invite your circle in one minute.</div>
+        </a>
+        <a href="{{ url_for('explore') }}" class="action-rail-card">
+            <div class="action-rail-title">Join the community</div>
+            <div class="action-rail-subtitle">Browse active public challenges and jump in fast.</div>
+        </a>
+        <a href="{{ url_for('join_challenge') }}" class="action-rail-card">
+            <div class="action-rail-title">Have a code?</div>
+            <div class="action-rail-subtitle">Use a join code from a friend and start today.</div>
+        </a>
+    </section>
+
+    <section class="focus-callout">
+        <div class="focus-callout-label">Today Focus</div>
+        <div class="focus-callout-value">{{ today_done }}/{{ today_total }} challenges checked in</div>
+    </section>
+
     {% if show_new_user_onboarding %}
     <section class="quickstart-card" id="quickstart-card">
         <div class="quickstart-header">
@@ -72,37 +92,29 @@
     </div>
     {% endif %}
 
-    <!-- Stats Overview -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon">&#127942;</div>
-            <div class="stat-info">
-                <span class="stat-value" data-count="{{ stats.total_points or 0 }}">{{ stats.total_points or 0 }}</span>
-                <span class="stat-label">Total Points</span>
+    <section class="compact-metrics">
+        <div class="compact-metrics-header">
+            <h2>Key Metrics</h2>
+        </div>
+        <div class="compact-metrics-grid">
+            <div class="compact-metric-item">
+                <span class="compact-metric-label">Total Points</span>
+                <span class="compact-metric-value" data-count="{{ stats.total_points or 0 }}">{{ stats.total_points or 0 }}</span>
+            </div>
+            <div class="compact-metric-item">
+                <span class="compact-metric-label">Current Streak</span>
+                <span class="compact-metric-value" data-count="{{ stats.best_current_streak or 0 }}">{{ stats.best_current_streak or 0 }}</span>
+            </div>
+            <div class="compact-metric-item">
+                <span class="compact-metric-label">Active Challenges</span>
+                <span class="compact-metric-value" data-count="{{ stats.active_challenges or 0 }}">{{ stats.active_challenges or 0 }}</span>
+            </div>
+            <div class="compact-metric-item">
+                <span class="compact-metric-label">Best Streak Ever</span>
+                <span class="compact-metric-value" data-count="{{ stats.all_time_best_streak or 0 }}">{{ stats.all_time_best_streak or 0 }}</span>
             </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon">&#128293;</div>
-            <div class="stat-info">
-                <span class="stat-value" data-count="{{ stats.best_current_streak or 0 }}">{{ stats.best_current_streak or 0 }}</span>
-                <span class="stat-label">Best Current Streak</span>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">&#9876;&#65039;</div>
-            <div class="stat-info">
-                <span class="stat-value" data-count="{{ stats.active_challenges or 0 }}">{{ stats.active_challenges or 0 }}</span>
-                <span class="stat-label">Active Challenges</span>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">&#11088;</div>
-            <div class="stat-info">
-                <span class="stat-value" data-count="{{ stats.all_time_best_streak or 0 }}">{{ stats.all_time_best_streak or 0 }}</span>
-                <span class="stat-label">All-Time Best Streak</span>
-            </div>
-        </div>
-    </div>
+    </section>
 
     <!-- Today's Progress -->
     {% if challenges %}

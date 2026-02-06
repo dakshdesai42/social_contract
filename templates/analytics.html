@@ -14,7 +14,7 @@
         <div class="header-actions">
             <form method="GET" action="{{ url_for('analytics_dashboard') }}">
                 <label for="days" class="sr-only">Range</label>
-                <select id="days" name="days" class="btn btn-ghost" onchange="this.form.submit()">
+                <select id="days" name="days" class="btn btn-ghost analytics-range" onchange="this.form.submit()">
                     <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 days</option>
                     <option value="14" {% if days == 14 %}selected{% endif %}>Last 14 days</option>
                     <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 days</option>
@@ -24,6 +24,17 @@
             </form>
         </div>
     </header>
+
+    <section class="analytics-overview">
+        <div class="analytics-overview-item">
+            <span class="analytics-overview-label">Window</span>
+            <span class="analytics-overview-value">{{ start_date }} to {{ end_date }}</span>
+        </div>
+        <div class="analytics-overview-item">
+            <span class="analytics-overview-label">Tracking Scope</span>
+            <span class="analytics-overview-value">Page usage + web vitals</span>
+        </div>
+    </section>
 
     <div class="stats-grid">
         <div class="stat-card">
@@ -60,7 +71,7 @@
         <div class="section-header">
             <h2>Daily Active Trend</h2>
         </div>
-        <div class="activity-list">
+        <div class="activity-list analytics-list">
             {% for row in dau_trend %}
             <div class="activity-item">
                 <div class="activity-icon">&#128202;</div>
@@ -78,7 +89,7 @@
             <h2>Top Countries (Active Users)</h2>
         </div>
         {% if top_countries %}
-        <div class="leaderboard">
+        <div class="leaderboard analytics-table">
             {% for row in top_countries %}
             <div class="leaderboard-row">
                 <div class="leaderboard-user">
@@ -98,7 +109,7 @@
         <div class="section-header">
             <h2>Web Vitals (Range)</h2>
         </div>
-        <div class="leaderboard">
+        <div class="leaderboard analytics-table">
             {% for row in vitals_summary %}
             <div class="leaderboard-row">
                 <div class="leaderboard-user">
@@ -122,7 +133,7 @@
             <h2>Most Used Pages</h2>
         </div>
         {% if top_pages %}
-        <div class="leaderboard">
+        <div class="leaderboard analytics-table">
             {% for row in top_pages %}
             <div class="leaderboard-row">
                 <div class="leaderboard-user">

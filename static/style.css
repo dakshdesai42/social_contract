@@ -5224,3 +5224,230 @@ textarea:focus-visible {
         padding: 22px;
     }
 }
+
+/* ============================================
+   PHASE C: SCREEN-LEVEL POLISH
+   ============================================ */
+
+.action-rail {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.action-rail-card {
+    display: block;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    transition: background var(--duration) var(--ease), border-color var(--duration) var(--ease), transform var(--duration) var(--ease);
+}
+
+.action-rail-card:hover {
+    background: var(--bg-elevated);
+    border-color: var(--border-default);
+    transform: translateY(-1px);
+}
+
+.action-rail-primary {
+    border-color: rgba(20, 184, 122, 0.32);
+    background: linear-gradient(145deg, rgba(20, 184, 122, 0.12), var(--bg-card));
+}
+
+.action-rail-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.action-rail-subtitle {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    line-height: 1.45;
+}
+
+.focus-callout {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    margin-bottom: 22px;
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+}
+
+.focus-callout-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.focus-callout-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.compact-metrics {
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+}
+
+.compact-metrics-header {
+    margin-bottom: 10px;
+}
+
+.compact-metrics-header h2 {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.compact-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.compact-metric-item {
+    padding: 10px;
+    border-radius: var(--radius-md);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.compact-metric-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    line-height: 1.2;
+}
+
+.compact-metric-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+.challenge-toolbar {
+    width: 100%;
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+}
+
+.challenge-toolbar-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.toolbar-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.toolbar-code {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--text-primary);
+}
+
+.challenge-toolbar-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.analytics-range {
+    min-width: 150px;
+}
+
+.analytics-overview {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.analytics-overview-item {
+    padding: 12px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+}
+
+.analytics-overview-label {
+    display: block;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.analytics-overview-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.analytics-table .leaderboard-row .leaderboard-score {
+    min-width: 140px;
+    text-align: right;
+}
+
+@media (max-width: 960px) {
+    .action-rail {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .focus-callout {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .challenge-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .challenge-toolbar-actions {
+        width: 100%;
+    }
+
+    .challenge-toolbar-actions .btn {
+        width: 100%;
+    }
+
+    .analytics-overview {
+        grid-template-columns: 1fr;
+    }
+
+    .compact-metrics-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
