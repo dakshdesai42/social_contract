@@ -150,6 +150,8 @@
         setLoading(btn, loading) {
             if (loading) {
                 btn.disabled = true;
+                btn.classList.add('is-loading');
+                btn.setAttribute('aria-busy', 'true');
                 btn.dataset.text = btn.innerHTML;
                 btn.innerHTML = `
                     <svg class="spinner" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -160,6 +162,8 @@
                 `;
             } else {
                 btn.disabled = false;
+                btn.classList.remove('is-loading');
+                btn.setAttribute('aria-busy', 'false');
                 btn.innerHTML = btn.dataset.text || 'Submit';
             }
         }
@@ -526,6 +530,8 @@
 
             const originalHTML = btn.innerHTML;
             btn.disabled = true;
+            btn.classList.add('is-loading');
+            btn.setAttribute('aria-busy', 'true');
             btn.innerHTML = '<svg class="spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>';
 
             const formData = new FormData(form);
@@ -543,6 +549,8 @@
             .then(data => {
                 if (data.error) {
                     btn.disabled = false;
+                    btn.classList.remove('is-loading');
+                    btn.setAttribute('aria-busy', 'false');
                     btn.innerHTML = originalHTML;
                     FlashMessages.show(data.error, 'error');
                     return;
@@ -561,6 +569,8 @@
             })
             .catch(() => {
                 btn.disabled = false;
+                btn.classList.remove('is-loading');
+                btn.setAttribute('aria-busy', 'false');
                 btn.innerHTML = originalHTML;
                 FlashMessages.show('Something went wrong. Please try again.', 'error');
             });

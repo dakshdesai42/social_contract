@@ -47,7 +47,7 @@
                 <span class="logo-text">Social Contract</span>
             </a>
 
-            <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle menu">
+            <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle menu" aria-controls="nav-links" aria-expanded="false">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -138,9 +138,9 @@
     <main class="main-content">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="flash-messages">
+                <div class="flash-messages" aria-live="polite" aria-atomic="true">
                     {% for category, message in messages %}
-                        <div class="flash flash-{{ category }}">
+                        <div class="flash flash-{{ category }}" role="status">
                             {% if category == 'success' %}
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -154,7 +154,7 @@
                                 </svg>
                             {% endif %}
                             <span>{{ message }}</span>
-                            <button class="flash-close">x</button>
+                            <button class="flash-close" aria-label="Dismiss message">x</button>
                         </div>
                     {% endfor %}
                 </div>
