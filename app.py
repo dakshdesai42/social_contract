@@ -876,8 +876,38 @@ def join_challenge():
         flash(f'Joined "{challenge.name}" successfully.', 'success')
         return redirect(url_for('view_challenge', challenge_id=challenge.id))
 
-    # Auto-fill code from URL: /challenge/join?code=XYZ123
+    # Auto-join from magic link: /challenge/join?code=XYZ123
     prefill_code = request.args.get('code', '').strip().upper()[:6]
+    if prefill_code:
+        challenge = Challenge.query.filter_by(join_code=prefill_code).first()
+        if challenge:
+            # Already a member — go straight to challenge
+            if ChallengeMember.query.filter_by(
+                challenge_id=challenge.id, user_id=session['user_id']
+            ).first():
+                return redirect(url_for('view_challenge', challenge_id=challenge.id))
+
+            # Auto-join if challenge is still active
+            if not challenge.is_completed:
+                membership = ChallengeMember(
+                    challenge_id=challenge.id,
+                    user_id=session['user_id']
+                )
+                db.session.add(membership)
+                db.session.commit()
+
+                if challenge.creator_id != session['user_id']:
+                    create_notification(
+                        challenge.creator_id, 'challenge_activity',
+                        'New Member',
+                        f'{session["display_name"]} joined your challenge "{challenge.name}".',
+                        url_for('view_challenge', challenge_id=challenge.id)
+                    )
+
+                check_achievements(session['user_id'])
+                flash(f'Joined "{challenge.name}" successfully.', 'success')
+                return redirect(url_for('view_challenge', challenge_id=challenge.id))
+
     return render_template('join_challenge.html', prefill_code=prefill_code)
 
 
