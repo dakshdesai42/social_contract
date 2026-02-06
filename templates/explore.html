@@ -7,8 +7,13 @@
 {% block content %}
 <div class="page-container">
     <header class="page-header">
-        <h1 class="page-title">Explore Challenges</h1>
-        <p class="header-subtitle">Join public challenges and compete with the community</p>
+        <div class="header-content">
+            <h1 class="page-title">Explore Challenges</h1>
+            <p class="header-subtitle">Join public challenges and compete with the community</p>
+        </div>
+        <div class="header-actions">
+            <a href="{{ url_for('create_challenge') }}?template=exercise&guided=1" class="btn btn-primary">Create from template</a>
+        </div>
     </header>
 
     {% if challenges %}
@@ -62,9 +67,9 @@
     {% else %}
     <div class="empty-state">
         <div class="empty-icon">🌍</div>
-        <h3>No public challenges yet</h3>
-        <p>Be the first to create a public challenge!</p>
-        <a href="{{ url_for('create_challenge') }}" class="btn btn-primary">Create Public Challenge</a>
+        <h3 class="empty-title">No public challenges yet</h3>
+        <p class="empty-desc">Kickstart the community with a template challenge. It takes less than a minute.</p>
+        <a href="{{ url_for('create_challenge') }}?template=exercise&guided=1" class="btn btn-primary">Create from template</a>
     </div>
     {% endif %}
 </div>

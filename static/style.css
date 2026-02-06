@@ -1111,6 +1111,12 @@ button {
     gap: 12px;
 }
 
+.nav-cta {
+    min-height: 34px;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+}
+
 .user-link {
     display: flex;
     align-items: center;
@@ -2429,6 +2435,10 @@ select.form-input {
         padding: 0 16px;
     }
     
+    .nav-cta {
+        display: none;
+    }
+
     .nav-links {
         display: none;
     }
@@ -2453,6 +2463,18 @@ select.form-input {
         flex-direction: column;
         align-items: flex-start;
         gap: 16px;
+    }
+
+    .challenge-actions .btn {
+        width: 100%;
+    }
+
+    .challenge-actions .checkin-form {
+        width: 100%;
+    }
+
+    .challenge-actions .checkin-form .btn {
+        width: 100%;
     }
 }
 
@@ -2879,10 +2901,22 @@ select.form-input {
     margin-top: 16px;
     display: flex;
     justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .checkin-form {
     display: inline;
+}
+
+.challenge-actions .copy-btn {
+    border-color: var(--border-subtle);
+}
+
+.challenge-actions .copy-btn.copied {
+    border-color: rgba(20, 184, 122, 0.45);
+    color: var(--accent-light);
+    background: var(--accent-subtle);
 }
 
 /* ---- ACTIVITY LIST ---- */

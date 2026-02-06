@@ -269,7 +269,11 @@
     const Clipboard = {
         init() {
             $$('[data-copy]').forEach(btn => {
-                btn.addEventListener('click', () => this.copy(btn));
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.copy(btn);
+                });
             });
         },
 
