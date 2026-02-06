@@ -861,6 +861,8 @@ def dashboard():
     best_current_streak = db.session.query(db.func.max(ChallengeMember.current_streak)).filter_by(user_id=user_id).scalar() or 0
     all_time_best_streak = db.session.query(db.func.max(ChallengeMember.best_streak)).filter_by(user_id=user_id).scalar() or 0
     active_challenges = len(challenges)
+    total_checkins = Checkin.query.filter_by(user_id=user_id).count()
+    total_challenges = active_challenges + len(completed_challenges)
 
     stats = {
         'total_points': total_points,
@@ -894,7 +896,13 @@ def dashboard():
                          recent_activity=recent_activity,
                          today=today.isoformat(),
                          today_done=today_done,
-                         today_total=today_total)
+                         today_total=today_total,
+                         show_new_user_onboarding=(total_checkins == 0),
+                         onboarding_steps={
+                             'has_challenge': total_challenges > 0,
+                             'has_first_checkin': total_checkins > 0,
+                             'recommended_template': 'exercise',
+                         })
 
 
 @app.route('/challenge/create', methods=['GET', 'POST'])

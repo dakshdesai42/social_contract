@@ -4928,3 +4928,157 @@ textarea:focus-visible {
         width: 100%;
     }
 }
+
+/* ============================================
+   NEW USER QUICK START
+   ============================================ */
+
+.quickstart-card {
+    background: linear-gradient(145deg, rgba(16, 185, 129, 0.08), var(--bg-card) 40%);
+    border: 1px solid rgba(16, 185, 129, 0.24);
+    border-radius: var(--radius-card);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.quickstart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+}
+
+.quickstart-header h2 {
+    font-size: 1.2rem;
+    letter-spacing: -0.01em;
+}
+
+.quickstart-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    line-height: 1.5;
+    margin-bottom: var(--space-3);
+}
+
+.quickstart-steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.quickstart-step {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 12px 14px;
+}
+
+.quickstart-step.done {
+    border-color: rgba(16, 185, 129, 0.35);
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.quickstart-mark {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-default);
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.quickstart-step.done .quickstart-mark {
+    border-color: rgba(16, 185, 129, 0.45);
+    color: var(--accent-light);
+}
+
+.quickstart-step-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.quickstart-step-content strong {
+    font-size: 0.9rem;
+}
+
+.quickstart-step-content span {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+}
+
+.quickstart-actions {
+    display: flex;
+    gap: var(--space-1);
+    flex-wrap: wrap;
+}
+
+.quickstart-modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1001;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    padding: 20px;
+    align-items: center;
+    justify-content: center;
+}
+
+.quickstart-modal-backdrop.active {
+    display: flex;
+}
+
+.quickstart-modal {
+    width: min(560px, 100%);
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    padding: 28px;
+    box-shadow: var(--shadow-lg);
+}
+
+.quickstart-modal h2 {
+    font-size: 1.35rem;
+    margin-bottom: 6px;
+}
+
+.quickstart-tour-list {
+    margin: 0 0 var(--space-3) 18px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+.quickstart-modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+@media (max-width: 768px) {
+    .quickstart-step {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .quickstart-actions {
+        width: 100%;
+    }
+
+    .quickstart-actions .btn {
+        width: 100%;
+    }
+
+    .quickstart-modal {
+        padding: 22px;
+    }
+}

@@ -23,6 +23,55 @@
         </div>
     </header>
 
+    {% if show_new_user_onboarding %}
+    <section class="quickstart-card" id="quickstart-card">
+        <div class="quickstart-header">
+            <h2>Quick Start</h2>
+            <span class="badge badge-accent">New user</span>
+        </div>
+        <p class="quickstart-subtitle">Start here: create your first challenge from a template, then check in today.</p>
+
+        <div class="quickstart-steps">
+            <div class="quickstart-step {% if onboarding_steps.has_challenge %}done{% endif %}">
+                <span class="quickstart-mark">{% if onboarding_steps.has_challenge %}&#10003;{% else %}1{% endif %}</span>
+                <div class="quickstart-step-content">
+                    <strong>Create or Join your first challenge</strong>
+                    <span>Recommended: start from a template in 1 tap.</span>
+                </div>
+                <div class="quickstart-actions">
+                    <a class="btn btn-primary btn-sm" href="{{ url_for('create_challenge') }}?template={{ onboarding_steps.recommended_template }}&guided=1">Create from template</a>
+                    <a class="btn btn-ghost btn-sm" href="{{ url_for('join_challenge') }}">Join with code</a>
+                </div>
+            </div>
+
+            <div class="quickstart-step {% if onboarding_steps.has_first_checkin %}done{% endif %}">
+                <span class="quickstart-mark">{% if onboarding_steps.has_first_checkin %}&#10003;{% else %}2{% endif %}</span>
+                <div class="quickstart-step-content">
+                    <strong>Complete your first check-in</strong>
+                    <span>Use the check-in button on your challenge to start your streak.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="quickstart-modal-backdrop" id="quickstart-modal" aria-hidden="true">
+        <div class="quickstart-modal" role="dialog" aria-modal="true" aria-labelledby="quickstart-title">
+            <h2 id="quickstart-title">Welcome to Social Contract</h2>
+            <p class="quickstart-subtitle">Here is the fastest way to get value in under a minute.</p>
+            <ol class="quickstart-tour-list">
+                <li>Pick a challenge template</li>
+                <li>Check in once today</li>
+                <li>Build a streak and invite a friend</li>
+            </ol>
+            <div class="quickstart-modal-actions">
+                <a class="btn btn-primary" href="{{ url_for('create_challenge') }}?template={{ onboarding_steps.recommended_template }}&guided=1">Start with template</a>
+                <a class="btn btn-ghost" href="{{ url_for('join_challenge') }}">Join with code</a>
+                <button class="btn btn-ghost" type="button" id="quickstart-skip">Skip for now</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Stats Overview -->
     <div class="stats-grid">
         <div class="stat-card">
@@ -334,6 +383,37 @@
     document.querySelectorAll('.client-date-field').forEach(function(el) {
         el.value = localDate;
     });
+
+    {% if show_new_user_onboarding %}
+    var modal = document.getElementById('quickstart-modal');
+    var skipBtn = document.getElementById('quickstart-skip');
+    var dismissed = localStorage.getItem('quickstart_zero_checkins_dismissed');
+
+    if (modal && !dismissed) {
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    if (skipBtn) {
+        skipBtn.addEventListener('click', function() {
+            localStorage.setItem('quickstart_zero_checkins_dismissed', '1');
+            if (modal) {
+                modal.classList.remove('active');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+        });
+    }
+
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                localStorage.setItem('quickstart_zero_checkins_dismissed', '1');
+                modal.classList.remove('active');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+        });
+    }
+    {% endif %}
 })();
 </script>
 {% endblock %}
