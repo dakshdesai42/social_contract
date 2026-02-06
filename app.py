@@ -15,6 +15,8 @@ import os
 import re
 import random
 import string
+import secrets
+import hashlib
 import logging
 from datetime import datetime, timedelta, date, timezone as tz
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -24,7 +26,7 @@ from markupsafe import Markup
 from models import (
     db, User, Challenge, ChallengeMember, Checkin, CheckinReaction,
     Achievement, UserAchievement, Notification, ChallengeComment, Nudge,
-    seed_achievements
+    PageViewEvent, seed_achievements
 )
 from cloudinary_helper import (
     init_cloudinary, upload_profile_photo, upload_checkin_photo,
@@ -32,6 +34,7 @@ from cloudinary_helper import (
 )
 
 load_dotenv()
+load_dotenv('tracking.private.env', override=False)
 
 # --- Logging Setup ---
 logging.basicConfig(
@@ -103,6 +106,15 @@ limiter = Limiter(
     storage_uri="memory://",
 )
 
+
+TRACKING_COUNTRY_HEADERS = [
+    'CF-IPCountry',
+    'CloudFront-Viewer-Country',
+    'X-AppEngine-Country',
+    'X-Country-Code',
+]
+
+
 # --- Security Headers ---
 @app.after_request
 def set_security_headers(response):
@@ -125,6 +137,47 @@ def set_security_headers(response):
     # Cache static assets aggressively (CSS, JS, images, icons)
     if request.path.startswith('/static/'):
         response.headers['Cache-Control'] = 'public, max-age=2592000'  # 30 days
+    return response
+
+
+@app.after_request
+def track_page_view(response):
+    """Track only real HTML page views for analytics."""
+    if os.environ.get('TRACKING_ENABLED', '1') != '1':
+        return response
+
+    if request.method != 'GET':
+        return response
+
+    if request.endpoint in (None, 'static', 'service_worker'):
+        return response
+
+    if request.path.startswith('/static/') or request.path.startswith('/api/'):
+        return response
+
+    if response.mimetype != 'text/html':
+        return response
+
+    try:
+        session_key = get_tracking_session_key()
+        event = PageViewEvent(
+            user_id=session.get('user_id'),
+            session_key=session_key,
+            endpoint=request.endpoint[:120],
+            path=request.path[:300],
+            method=request.method,
+            country_code=get_country_code(),
+            ip_hash=get_hashed_ip(),
+            user_agent=(request.user_agent.string or '')[:256],
+            viewed_at=datetime.now(tz.utc),
+            view_date=get_user_today(),
+        )
+        db.session.add(event)
+        db.session.commit()
+    except Exception as err:
+        db.session.rollback()
+        logger.warning(f'Analytics tracking skipped due to error: {err}')
+
     return response
 
 
@@ -186,6 +239,41 @@ def render_avatar(display_name, photo_url=None, css_class='user-avatar'):
 
 
 app.jinja_env.globals['render_avatar'] = render_avatar
+
+
+def get_tracking_session_key():
+    tracking_sid = session.get('tracking_sid')
+    if not tracking_sid:
+        tracking_sid = secrets.token_hex(16)
+        session['tracking_sid'] = tracking_sid
+    return tracking_sid
+
+
+def get_country_code():
+    for header in TRACKING_COUNTRY_HEADERS:
+        value = request.headers.get(header, '').strip().upper()
+        if len(value) == 2 and value.isalpha():
+            return value
+    fallback = os.environ.get('TRACKING_DEFAULT_COUNTRY', 'UN').strip().upper()
+    if len(fallback) == 2 and fallback.isalpha():
+        return fallback
+    return 'UN'
+
+
+def get_client_ip():
+    x_forwarded_for = request.headers.get('X-Forwarded-For', '')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[0].strip()
+    return request.headers.get('X-Real-IP', request.remote_addr or '').strip()
+
+
+def get_hashed_ip():
+    client_ip = get_client_ip()
+    if not client_ip:
+        return None
+    salt = os.environ.get('TRACKING_IP_SALT', '')
+    payload = f'{salt}:{client_ip}'
+    return hashlib.sha256(payload.encode('utf-8')).hexdigest()
 
 
 def validate_timezone(tz_name):
@@ -1634,6 +1722,88 @@ def is_admin():
     """Check if current user is an admin. Set ADMIN_USERNAMES env var (comma-separated)."""
     admin_usernames = os.environ.get('ADMIN_USERNAMES', '').lower().split(',')
     return session.get('username', '').lower() in [u.strip() for u in admin_usernames if u.strip()]
+
+
+app.jinja_env.globals['is_admin'] = is_admin
+
+
+@app.route('/admin/analytics')
+@login_required
+def analytics_dashboard():
+    if not is_admin():
+        flash('Unauthorized.', 'error')
+        return redirect(url_for('dashboard'))
+
+    days = request.args.get('days', '14').strip()
+    try:
+        days = int(days)
+    except ValueError:
+        days = 14
+    days = max(1, min(days, 90))
+
+    end_date = get_user_today()
+    start_date = end_date - timedelta(days=days - 1)
+
+    events = PageViewEvent.query.filter(
+        PageViewEvent.view_date >= start_date,
+        PageViewEvent.view_date <= end_date
+    ).all()
+
+    daily_active = {}
+    country_active = {}
+    top_pages = {}
+    logged_in_today = set()
+    total_views_today = 0
+
+    for event in events:
+        actor_key = f'user:{event.user_id}' if event.user_id else f'session:{event.session_key or event.ip_hash or "unknown"}'
+        daily_active.setdefault(event.view_date, set()).add(actor_key)
+
+        country = event.country_code or 'UN'
+        country_active.setdefault(country, set()).add(actor_key)
+
+        top_pages[event.path] = top_pages.get(event.path, 0) + 1
+
+        if event.view_date == end_date:
+            total_views_today += 1
+            if event.user_id:
+                logged_in_today.add(event.user_id)
+
+    dau_trend = []
+    for i in range(days):
+        day = start_date + timedelta(days=i)
+        dau_trend.append({
+            'date': day.isoformat(),
+            'count': len(daily_active.get(day, set()))
+        })
+
+    today_dau = len(daily_active.get(end_date, set()))
+
+    top_countries = sorted(
+        ({'country': country, 'users': len(users)} for country, users in country_active.items()),
+        key=lambda row: row['users'],
+        reverse=True
+    )[:10]
+
+    top_pages_list = sorted(
+        ({'path': path, 'views': views} for path, views in top_pages.items()),
+        key=lambda row: row['views'],
+        reverse=True
+    )[:10]
+
+    return render_template(
+        'analytics.html',
+        days=days,
+        start_date=start_date.isoformat(),
+        end_date=end_date.isoformat(),
+        today_dau=today_dau,
+        logged_in_today=len(logged_in_today),
+        total_views_today=total_views_today,
+        unique_pages=len(top_pages),
+        top_countries=top_countries,
+        top_pages=top_pages_list,
+        dau_trend=dau_trend
+    )
 
 
 @app.route('/admin/nuke/<int:checkin_id>', methods=['POST'])

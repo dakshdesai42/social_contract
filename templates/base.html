@@ -93,6 +93,15 @@
                     </svg>
                     Achievements
                 </a>
+                {% if is_admin() %}
+                <a href="{{ url_for('analytics_dashboard') }}" class="nav-link {% if request.endpoint == 'analytics_dashboard' %}active{% endif %}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3v18h18"></path>
+                        <path d="M7 14l3-3 3 2 4-5"></path>
+                    </svg>
+                    Analytics
+                </a>
+                {% endif %}
             </div>
 
             <div class="nav-user">

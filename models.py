@@ -191,6 +191,31 @@ class Notification(db.Model):
     user = db.relationship('User', back_populates='notifications')
 
 
+class PageViewEvent(db.Model):
+    __tablename__ = 'page_view_events'
+    __table_args__ = (
+        db.Index('idx_page_views_day', 'view_date'),
+        db.Index('idx_page_views_endpoint_day', 'endpoint', 'view_date'),
+        db.Index('idx_page_views_country_day', 'country_code', 'view_date'),
+        db.Index('idx_page_views_user_day', 'user_id', 'view_date'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    session_key = db.Column(db.String(64), nullable=True, index=True)
+    endpoint = db.Column(db.String(120), nullable=False)
+    path = db.Column(db.String(300), nullable=False)
+    method = db.Column(db.String(10), nullable=False, default='GET')
+    country_code = db.Column(db.String(2), nullable=False, default='UN')
+    ip_hash = db.Column(db.String(64), nullable=True)
+    user_agent = db.Column(db.String(256), nullable=True)
+    viewed_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    view_date = db.Column(db.Date, nullable=False, index=True)
+
+    # Relationships
+    user = db.relationship('User')
+
+
 class ChallengeComment(db.Model):
     __tablename__ = 'challenge_comments'
     __table_args__ = (

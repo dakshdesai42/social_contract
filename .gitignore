@@ -3,6 +3,8 @@ __pycache__/
 *.db
 *.sqlite3
 .env
+tracking.private.env
+analytics.private.env
 venv/
 .venv/
 static/uploads/*

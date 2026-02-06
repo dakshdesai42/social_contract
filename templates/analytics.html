@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - Social Contract{% endblock %}
+
+{% block meta_description %}Track daily active users, country breakdown, and most viewed pages.{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <header class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">Usage Analytics</h1>
+            <p class="header-subtitle">DAU, countries, and top pages from {{ start_date }} to {{ end_date }}.</p>
+        </div>
+        <div class="header-actions">
+            <form method="GET" action="{{ url_for('analytics_dashboard') }}">
+                <label for="days" class="sr-only">Range</label>
+                <select id="days" name="days" class="btn btn-ghost" onchange="this.form.submit()">
+                    <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 days</option>
+                    <option value="14" {% if days == 14 %}selected{% endif %}>Last 14 days</option>
+                    <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 days</option>
+                    <option value="60" {% if days == 60 %}selected{% endif %}>Last 60 days</option>
+                    <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 days</option>
+                </select>
+            </form>
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">&#128100;</div>
+            <div class="stat-info">
+                <span class="stat-value">{{ today_dau }}</span>
+                <span class="stat-label">DAU (Today)</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">&#128273;</div>
+            <div class="stat-info">
+                <span class="stat-value">{{ logged_in_today }}</span>
+                <span class="stat-label">Logged-in Active (Today)</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">&#128200;</div>
+            <div class="stat-info">
+                <span class="stat-value">{{ total_views_today }}</span>
+                <span class="stat-label">Page Views (Today)</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">&#128196;</div>
+            <div class="stat-info">
+                <span class="stat-value">{{ unique_pages }}</span>
+                <span class="stat-label">Unique Pages (Range)</span>
+            </div>
+        </div>
+    </div>
+
+    <section class="dashboard-section">
+        <div class="section-header">
+            <h2>Daily Active Trend</h2>
+        </div>
+        <div class="activity-list">
+            {% for row in dau_trend %}
+            <div class="activity-item">
+                <div class="activity-icon">&#128202;</div>
+                <div class="activity-content">
+                    <span class="activity-text">{{ row.date }}</span>
+                </div>
+                <div class="activity-date">{{ row.count }} active</div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="dashboard-section">
+        <div class="section-header">
+            <h2>Top Countries (Active Users)</h2>
+        </div>
+        {% if top_countries %}
+        <div class="leaderboard">
+            {% for row in top_countries %}
+            <div class="leaderboard-row">
+                <div class="leaderboard-user">
+                    <div class="leaderboard-avatar">{{ row.country }}</div>
+                    <div class="leaderboard-name">{{ row.country }}</div>
+                </div>
+                <div class="leaderboard-score">{{ row.users }} active</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="header-subtitle">No country data yet.</p>
+        {% endif %}
+    </section>
+
+    <section class="dashboard-section">
+        <div class="section-header">
+            <h2>Most Used Pages</h2>
+        </div>
+        {% if top_pages %}
+        <div class="leaderboard">
+            {% for row in top_pages %}
+            <div class="leaderboard-row">
+                <div class="leaderboard-user">
+                    <div class="leaderboard-avatar">&#128279;</div>
+                    <div class="leaderboard-name">{{ row.path }}</div>
+                </div>
+                <div class="leaderboard-score">{{ row.views }} views</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="header-subtitle">No page usage data yet.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
