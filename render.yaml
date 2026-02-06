@@ -3,7 +3,7 @@ services:
     name: accountability-arena
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: python init_db.py && gunicorn app:app
     envVars:
       - key: SECRET_KEY
         generateValue: true
