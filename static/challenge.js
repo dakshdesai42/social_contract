@@ -21,6 +21,31 @@
     if (!challengeId) return;
 
     // ===============================
+    // BFCACHE + CHECKIN STATE
+    // ===============================
+    // Safari/iOS caches pages in bfcache. Force reload so server-rendered
+    // state (checked-in vs not) is always fresh.
+    window.addEventListener('pageshow', function(e) {
+        if (e.persisted) {
+            window.location.reload();
+        }
+    });
+
+    // Also check localStorage for today's check-in (covers race conditions)
+    var todayKey = 'checkin_' + challengeId + '_' + new Date().toISOString().slice(0, 10);
+    var checkinForm = document.querySelector('.checkin-section form[action*="checkin"]');
+    if (checkinForm && localStorage.getItem(todayKey)) {
+        // Already checked in today — hide the form and show success state
+        var card = checkinForm.closest('.checkin-card');
+        if (card) {
+            card.classList.add('checked');
+            card.innerHTML =
+                '<div class="checked-icon">\u2705</div>' +
+                '<h2>You\'re all set for today!</h2>';
+        }
+    }
+
+    // ===============================
     // CONFETTI
     // ===============================
     function launchConfetti() {
@@ -101,7 +126,6 @@
     // ===============================
     // AJAX CHECK-IN
     // ===============================
-    var checkinForm = document.querySelector('.checkin-section form[action*="checkin"]');
     if (checkinForm) {
         checkinForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -134,6 +158,10 @@
 
                 // SUCCESS - Launch confetti!
                 launchConfetti();
+
+                // Mark today's check-in in localStorage
+                var doneKey = 'checkin_' + challengeId + '_' + new Date().toISOString().slice(0, 10);
+                try { localStorage.setItem(doneKey, '1'); } catch(e) {}
 
                 // Replace the check-in card with the success state
                 var checkinCard = document.querySelector('.checkin-card');
