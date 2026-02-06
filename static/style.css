@@ -30,6 +30,10 @@
     --accent-subtle: rgba(20, 184, 122, 0.11);
     --accent-glow: rgba(20, 184, 122, 0.2);
 
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --gradient-glow: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.15), transparent 70%);
+
     /* Status */
     --status-success: #22c55e;
     --status-error: #ef4444;
@@ -125,18 +129,69 @@ button {
     min-height: 100vh;
 }
 
-/* Subtle radial glow */
-.landing::before {
-    content: '';
-    position: fixed;
-    top: -20%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 800px;
-    height: 600px;
-    background: radial-gradient(ellipse, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
-    pointer-events: none;
+/* Background Blobs */
+.l-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
     z-index: 0;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.l-blob--1 {
+    top: -10%;
+    right: -5%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+    animation: blob-float 20s infinite alternate;
+}
+
+.l-blob--2 {
+    bottom: 20%;
+    left: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+    animation: blob-float 25s infinite alternate-reverse;
+}
+
+.l-blob--3 {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(closest-side, rgba(255,255,255,0.03) 0%, transparent 100%);
+    z-index: 0;
+}
+
+@keyframes blob-float {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(30px, 50px) scale(1.1); }
+}
+
+/* Entry Animations */
+.animate-entry {
+    opacity: 0;
+    animation: fade-in-up 0.8s var(--ease) forwards;
+}
+
+.animate-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+}
+
+.animate-scroll.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* ============================================
@@ -359,11 +414,19 @@ button {
     display: flex;
     justify-content: center;
     position: relative;
+    perspective: 1000px;
 }
 
 .l-device {
     position: relative;
     width: 320px;
+    transform: rotateY(-10deg) rotateX(5deg);
+    transform-style: preserve-3d;
+    transition: transform 0.5s var(--ease);
+}
+
+.l-device:hover {
+    transform: rotateY(0) rotateX(0);
 }
 
 .l-device-frame {
@@ -789,6 +852,56 @@ button {
     line-height: 1.6;
 }
 
+/* Feature Grid */
+.l-section--features {
+    padding-top: 0;
+    padding-bottom: 80px;
+}
+
+.l-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+@media (max-width: 900px) {
+    .l-grid-3 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.l-feature-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 32px;
+    transition: transform var(--duration) var(--ease), border-color var(--duration) var(--ease), background var(--duration) var(--ease);
+}
+
+.l-feature-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--border-default);
+    background: var(--bg-elevated);
+}
+
+.l-feature-icon {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.l-feature-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.l-feature-desc {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
 /* ============================================
    CTA SECTION
    ============================================ */
@@ -889,6 +1002,21 @@ button {
         margin-left: auto;
         margin-right: auto;
     }
+    
+    .l-cta-card {
+    position: relative;
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 60px 40px;
+    text-align: center;
+    overflow: hidden;
+}
+
+.l-cta-content {
+    position: relative;
+    z-index: 1;
+}
     
     .l-cta {
         display: flex;

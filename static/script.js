@@ -182,10 +182,11 @@
         },
 
         setupScrollReveal() {
-            const targets = $$('.stat-card, .challenge-card, .l-step');
+            const targets = $$('.stat-card, .challenge-card, .l-step, .animate-scroll');
             if (!targets.length) return;
 
-            targets.forEach((el, i) => {
+            // Prepare elements that aren't .animate-scroll (legacy support)
+            targets.filter(el => !el.classList.contains('animate-scroll')).forEach((el, i) => {
                 el.style.opacity = '0';
                 el.style.transform = 'translateY(20px)';
                 el.style.transition = `opacity 0.5s ease ${i * 0.06}s, transform 0.5s ease ${i * 0.06}s`;
@@ -194,8 +195,13 @@
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
+                        if (entry.target.classList.contains('animate-scroll')) {
+                            entry.target.classList.add('is-visible');
+                        } else {
+                            // Legacy inline styles
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }
                         observer.unobserve(entry.target);
                     }
                 });

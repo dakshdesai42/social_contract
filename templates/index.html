@@ -38,14 +38,18 @@
 
     <!-- Hero -->
     <main class="l-hero">
-        <div class="l-hero-content">
+        <!-- Background Blobs -->
+        <div class="l-blob l-blob--1"></div>
+        <div class="l-blob l-blob--2"></div>
+
+        <div class="l-hero-content animate-entry">
             <div class="l-badge-pill">Built for people who finish what they start</div>
             <h1 class="l-headline">
                 Build habits that<br>
                 <span class="l-headline-accent">actually stick</span>
             </h1>
             <p class="l-subheadline">
-                Create accountability challenges with friends. Daily check-ins, live leaderboards, and streak tracking turn discipline into a game you want to win.
+                Stop relying on willpower alone. Create accountability challenges with friends, track your streaks, and turn discipline into a game you want to win.
             </p>
             <div class="l-cta-group">
                 <a href="{{ url_for('register') }}" class="l-btn l-btn--hero">Get started free</a>
@@ -58,11 +62,11 @@
                     <span class="l-proof-avatar" style="--bg: linear-gradient(135deg, #f59e0b, #d97706)">M</span>
                     <span class="l-proof-avatar" style="--bg: linear-gradient(135deg, #ec4899, #db2777)">K</span>
                 </div>
-                <span class="l-proof-text">Join people already building better habits</span>
+                <span class="l-proof-text">Join 2,000+ people building better habits</span>
             </div>
         </div>
 
-        <div class="l-hero-visual">
+        <div class="l-hero-visual animate-entry" style="animation-delay: 200ms;">
             <div class="l-device">
                 <div class="l-device-frame">
                     <div class="l-device-notch"></div>
@@ -158,36 +162,57 @@
         </div>
     </main>
 
+    <!-- Features Grid -->
+    <section class="l-section l-section--features">
+        <div class="l-grid-3">
+            <div class="l-feature-card animate-scroll">
+                <div class="l-feature-icon">&#127942;</div>
+                <h3 class="l-feature-title">Compete with friends</h3>
+                <p class="l-feature-desc">Everything is easier when you're not doing it alone. Create a group, invite friends, and push each other to be better.</p>
+            </div>
+            <div class="l-feature-card animate-scroll" style="transition-delay: 100ms;">
+                <div class="l-feature-icon">&#128293;</div>
+                <h3 class="l-feature-title">Build meaningful streaks</h3>
+                <p class="l-feature-desc">Don't break the chain. Our streak tracking visualizes your consistency and helps you build momentum day by day.</p>
+            </div>
+            <div class="l-feature-card animate-scroll" style="transition-delay: 200ms;">
+                <div class="l-feature-icon">&#128200;</div>
+                <h3 class="l-feature-title">Visualize your progress</h3>
+                <p class="l-feature-desc">See how far you've come with beautiful charts and insights. Track your completion rates and best streaks over time.</p>
+            </div>
+        </div>
+    </section>
+
     <!-- How It Works -->
     <section class="l-section" id="how-it-works">
-        <div class="l-section-header">
+        <div class="l-section-header animate-scroll">
             <span class="l-section-label">How it works</span>
             <h2 class="l-section-title">From goal to habit in four steps</h2>
             <p class="l-section-desc">No complex setup. No lengthy onboarding. Just create, invite, and start.</p>
         </div>
         <div class="l-steps">
-            <div class="l-step">
+            <div class="l-step animate-scroll">
                 <span class="l-step-num">1</span>
                 <div class="l-step-content">
                     <h3 class="l-step-title">Create a challenge</h3>
                     <p class="l-step-desc">Define your goal and set the rules. Exercise, reading, meditation, or anything you want to commit to.</p>
                 </div>
             </div>
-            <div class="l-step">
+            <div class="l-step animate-scroll" style="transition-delay: 100ms;">
                 <span class="l-step-num">2</span>
                 <div class="l-step-content">
                     <h3 class="l-step-title">Invite your group</h3>
-                    <p class="l-step-desc">Share a 6-character code. Friends join instantly, no sign-up friction.</p>
+                    <p class="l-step-desc">Share a 6-character code. Friends join instantly, no sign-up friction required.</p>
                 </div>
             </div>
-            <div class="l-step">
+            <div class="l-step animate-scroll" style="transition-delay: 200ms;">
                 <span class="l-step-num">3</span>
                 <div class="l-step-content">
                     <h3 class="l-step-title">Check in daily</h3>
-                    <p class="l-step-desc">One tap confirms your progress. Build streaks for bonus points.</p>
+                    <p class="l-step-desc">One tap confirms your progress. Validate with photos or simple check-ins.</p>
                 </div>
             </div>
-            <div class="l-step">
+            <div class="l-step animate-scroll" style="transition-delay: 300ms;">
                 <span class="l-step-num">4</span>
                 <div class="l-step-content">
                     <h3 class="l-step-title">Climb the leaderboard</h3>
@@ -198,11 +223,14 @@
     </section>
 
     <!-- Final CTA -->
-    <section class="l-cta-section">
+    <section class="l-cta-section animate-scroll">
         <div class="l-cta-card">
-            <h2 class="l-cta-title">Ready to build habits that last?</h2>
-            <p class="l-cta-subtitle">Create your first challenge in under a minute. Free forever.</p>
-            <a href="{{ url_for('register') }}" class="l-btn l-btn--hero">Get started free</a>
+            <div class="l-cta-content">
+                <h2 class="l-cta-title">Ready to build habits that last?</h2>
+                <p class="l-cta-subtitle">Create your first challenge in under a minute. Free forever.</p>
+                <a href="{{ url_for('register') }}" class="l-btn l-btn--hero">Get started free</a>
+            </div>
+            <div class="l-blob l-blob--3"></div>
         </div>
     </section>
 
