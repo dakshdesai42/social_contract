@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\\\Users\\\\parzi\\\\Desktop\\\\Productivity App\\\\accountability-arena\\\\accountability-arena\\\\static\")",
+      "Bash(if exist accountability_arena.db del accountability_arena.db)",
+      "Bash(python:*)",
+      "Bash(dir:*)",
+      "Bash(if not exist \"C:\\\\Users\\\\parzi\\\\Desktop\\\\Productivity App\\\\accountability-arena\\\\accountability-arena\\\\static\\\\uploads\" mkdir \"C:\\\\Users\\\\parzi\\\\Desktop\\\\Productivity App\\\\accountability-arena\\\\accountability-arena\\\\static\\\\uploads\")",
+      "Bash(git init:*)",
+      "Bash(pip install:*)",
+      "Bash(curl:*)",
+      "Bash(set FLASK_DEBUG=1)",
+      "Bash(ls:*)",
+      "Bash(FLASK_ENV=development FLASK_DEBUG=1 timeout 5 python:*)",
+      "Bash(python3:*)",
+      "Bash(py -c \"from zoneinfo import ZoneInfo; print\\(ZoneInfo\\(''America/New_York''\\)\\)\")",
+      "Bash(pip show:*)",
+      "Bash(timeout:*)",
+      "Bash(Remove-Item:*)",
+      "Bash(Write-Host \"Database reset\")",
+      "Bash(node -c:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(set:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nInitial commit: Social Contract accountability app\n\nFlask app with SQLAlchemy, Cloudinary image uploads, Google OAuth,\nPWA support, and Render deployment config. Includes magic join links,\nshare streak button, GitHub-style activity heatmap, admin nuke route,\nand production-safe db init gated behind FLASK_DEBUG.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit:*)"
+    ]
+  }
+}
