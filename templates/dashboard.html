@@ -23,24 +23,64 @@
         </div>
     </header>
 
-    <section class="action-rail">
-        <a href="{{ url_for('create_challenge') }}?template=exercise&guided=1" class="action-rail-card action-rail-primary">
-            <div class="action-rail-title">Launch a challenge</div>
-            <div class="action-rail-subtitle">Start from template and invite your circle in one minute.</div>
-        </a>
-        <a href="{{ url_for('explore') }}" class="action-rail-card">
-            <div class="action-rail-title">Join the community</div>
-            <div class="action-rail-subtitle">Browse active public challenges and jump in fast.</div>
-        </a>
-        <a href="{{ url_for('join_challenge') }}" class="action-rail-card">
-            <div class="action-rail-title">Have a code?</div>
-            <div class="action-rail-subtitle">Use a join code from a friend and start today.</div>
-        </a>
-    </section>
+    <section class="home-layout">
+        <div class="home-summary-card">
+            <span class="home-summary-kicker">Home</span>
+            <h2 class="home-summary-title">
+                {% if today_total > 0 %}
+                Stay consistent today
+                {% else %}
+                Ready to build your first streak?
+                {% endif %}
+            </h2>
+            <p class="home-summary-subtitle">
+                {% if today_total > 0 %}
+                Keep momentum going with one-tap check-ins and invite your accountability circle.
+                {% else %}
+                Start from a template, invite friends, and make your first check-in today.
+                {% endif %}
+            </p>
+            <div class="home-summary-meta">
+                <span class="home-summary-chip">&#128293; {{ today_done }}/{{ today_total }} done today</span>
+                <span class="home-summary-chip">&#9876;&#65039; {{ stats.active_challenges or 0 }} active now</span>
+            </div>
+            <div class="home-summary-actions">
+                <a href="{{ url_for('create_challenge') }}?template=exercise&guided=1" class="btn btn-primary btn-sm">Create from template</a>
+                <a href="{{ url_for('explore') }}" class="btn btn-ghost btn-sm">Explore challenges</a>
+                <a href="{{ url_for('join_challenge') }}" class="btn btn-ghost btn-sm">Join with code</a>
+            </div>
+        </div>
 
-    <section class="focus-callout">
-        <div class="focus-callout-label">Today Focus</div>
-        <div class="focus-callout-value">{{ today_done }}/{{ today_total }} challenges checked in</div>
+        <section class="mini-stats" aria-label="Key Metrics">
+            <div class="mini-stat-card">
+                <span class="mini-stat-icon">&#127942;</span>
+                <div class="mini-stat-content">
+                    <span class="mini-stat-label">Total Points</span>
+                    <span class="mini-stat-value" data-count="{{ stats.total_points or 0 }}">{{ stats.total_points or 0 }}</span>
+                </div>
+            </div>
+            <div class="mini-stat-card">
+                <span class="mini-stat-icon">&#128293;</span>
+                <div class="mini-stat-content">
+                    <span class="mini-stat-label">Current Streak</span>
+                    <span class="mini-stat-value" data-count="{{ stats.best_current_streak or 0 }}">{{ stats.best_current_streak or 0 }}</span>
+                </div>
+            </div>
+            <div class="mini-stat-card">
+                <span class="mini-stat-icon">&#9876;&#65039;</span>
+                <div class="mini-stat-content">
+                    <span class="mini-stat-label">Active Challenges</span>
+                    <span class="mini-stat-value" data-count="{{ stats.active_challenges or 0 }}">{{ stats.active_challenges or 0 }}</span>
+                </div>
+            </div>
+            <div class="mini-stat-card">
+                <span class="mini-stat-icon">&#11088;</span>
+                <div class="mini-stat-content">
+                    <span class="mini-stat-label">Best Streak</span>
+                    <span class="mini-stat-value" data-count="{{ stats.all_time_best_streak or 0 }}">{{ stats.all_time_best_streak or 0 }}</span>
+                </div>
+            </div>
+        </section>
     </section>
 
     {% if show_new_user_onboarding %}
@@ -91,37 +131,6 @@
         </div>
     </div>
     {% endif %}
-
-    <section class="mini-stats" aria-label="Key Metrics">
-        <div class="mini-stat-card">
-            <span class="mini-stat-icon">&#127942;</span>
-            <div class="mini-stat-content">
-                <span class="mini-stat-label">Total Points</span>
-                <span class="mini-stat-value" data-count="{{ stats.total_points or 0 }}">{{ stats.total_points or 0 }}</span>
-            </div>
-        </div>
-        <div class="mini-stat-card">
-            <span class="mini-stat-icon">&#128293;</span>
-            <div class="mini-stat-content">
-                <span class="mini-stat-label">Current Streak</span>
-                <span class="mini-stat-value" data-count="{{ stats.best_current_streak or 0 }}">{{ stats.best_current_streak or 0 }}</span>
-            </div>
-        </div>
-        <div class="mini-stat-card">
-            <span class="mini-stat-icon">&#9876;&#65039;</span>
-            <div class="mini-stat-content">
-                <span class="mini-stat-label">Active Challenges</span>
-                <span class="mini-stat-value" data-count="{{ stats.active_challenges or 0 }}">{{ stats.active_challenges or 0 }}</span>
-            </div>
-        </div>
-        <div class="mini-stat-card">
-            <span class="mini-stat-icon">&#11088;</span>
-            <div class="mini-stat-content">
-                <span class="mini-stat-label">Best Streak</span>
-                <span class="mini-stat-value" data-count="{{ stats.all_time_best_streak or 0 }}">{{ stats.all_time_best_streak or 0 }}</span>
-            </div>
-        </div>
-    </section>
 
     <!-- Today's Progress -->
     {% if challenges %}
