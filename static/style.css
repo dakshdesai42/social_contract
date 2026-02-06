@@ -12,23 +12,23 @@
    ============================================ */
 
 :root {
-    /* Color — Refined dark palette with emerald accent */
-    --bg-base: #08090a;
-    --bg-subtle: #0e0f11;
-    --bg-card: #131416;
-    --bg-elevated: #1a1b1e;
-    --bg-hover: #1f2023;
+    /* Color — Professional dark palette with restrained accent */
+    --bg-base: #0b0d10;
+    --bg-subtle: #101317;
+    --bg-card: #151921;
+    --bg-elevated: #1a1f28;
+    --bg-hover: #212734;
     
-    --text-primary: #f4f4f5;
-    --text-secondary: #a1a1aa;
-    --text-muted: #71717a;
-    --text-faint: #3f3f46;
+    --text-primary: #f2f4f8;
+    --text-secondary: #b8c0cc;
+    --text-muted: #8a93a3;
+    --text-faint: #5d6676;
     
     /* Accent — Single emerald */
-    --accent: #10b981;
-    --accent-light: #34d399;
-    --accent-subtle: rgba(16, 185, 129, 0.1);
-    --accent-glow: rgba(16, 185, 129, 0.25);
+    --accent: #14b87a;
+    --accent-light: #35cc95;
+    --accent-subtle: rgba(20, 184, 122, 0.11);
+    --accent-glow: rgba(20, 184, 122, 0.2);
 
     /* Status */
     --status-success: #22c55e;
@@ -41,24 +41,30 @@
     --rank-bronze: #d97706;
 
     /* Borders */
-    --border-subtle: rgba(255, 255, 255, 0.06);
-    --border-default: rgba(255, 255, 255, 0.1);
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-default: rgba(255, 255, 255, 0.14);
     
     /* Shadows */
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
-    --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
-    --shadow-glow: 0 0 60px var(--accent-glow);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.34);
+    --shadow-md: 0 8px 18px rgba(0,0,0,0.36);
+    --shadow-lg: 0 18px 42px rgba(0,0,0,0.45);
+    --shadow-glow: 0 0 48px var(--accent-glow);
     
     /* Radius */
     --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 16px;
-    --radius-xl: 24px;
+    --radius-md: 9px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
     --radius-full: 9999px;
     
     /* Typography */
     --font: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --fs-xs: 0.75rem;
+    --fs-sm: 0.875rem;
+    --fs-md: 1rem;
+    --fs-lg: 1.125rem;
+    --fs-xl: 1.375rem;
+    --fs-2xl: 1.75rem;
     
     /* Transitions */
     --ease: cubic-bezier(0.16, 1, 0.3, 1);
@@ -84,9 +90,9 @@ html {
 
 body {
     font-family: var(--font);
-    font-size: 16px;
+    font-size: var(--fs-md);
     font-weight: 400;
-    line-height: 1.6;
+    line-height: 1.52;
     color: var(--text-primary);
     background: var(--bg-base);
     min-height: 100vh;
@@ -4724,6 +4730,108 @@ img.tab-avatar {
     gap: 12px;
     flex-wrap: wrap;
     justify-content: center;
+}
+
+/* ============================================
+   PHASE A: PROFESSIONAL FOUNDATION
+   ============================================ */
+
+.page-title {
+    font-size: clamp(1.35rem, 1.2rem + 1vw, 1.7rem);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+}
+
+.section-header h2,
+.card-title,
+.challenge-name {
+    letter-spacing: -0.01em;
+}
+
+.header-subtitle,
+.page-subtitle,
+.challenge-desc,
+.activity-text,
+.notification-message,
+.comment-text {
+    color: var(--text-secondary);
+}
+
+.card,
+.stat-card,
+.challenge-card,
+.leaderboard,
+.notification-item,
+.today-progress,
+.activity-item,
+.comment-item,
+.onboarding-card,
+.quickstart-card {
+    border-color: var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+}
+
+.card:hover,
+.stat-card:hover,
+.challenge-card:hover,
+.notification-item:hover {
+    border-color: var(--border-default);
+}
+
+.badge {
+    font-size: 0.68rem;
+    letter-spacing: 0.045em;
+}
+
+.btn {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+}
+
+.form-label {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+}
+
+.form-input {
+    color: var(--text-primary);
+    background: var(--bg-subtle);
+}
+
+/* ============================================
+   LARGER TAP AREA (NO VISUAL SIZE CHANGE)
+   ============================================ */
+
+.btn,
+.nav-link,
+.mobile-menu-btn,
+.logout-btn,
+.notif-bell,
+.tab-item,
+.reaction-btn,
+.reaction-add,
+.nudge-btn,
+.copy-btn,
+.back-link {
+    position: relative;
+}
+
+.btn::after,
+.nav-link::after,
+.mobile-menu-btn::after,
+.logout-btn::after,
+.notif-bell::after,
+.tab-item::after,
+.reaction-btn::after,
+.reaction-add::after,
+.nudge-btn::after,
+.copy-btn::after,
+.back-link::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    pointer-events: auto;
 }
 
 /* ============================================
