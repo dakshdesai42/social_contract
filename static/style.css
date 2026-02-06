@@ -5646,6 +5646,25 @@ textarea:focus-visible {
     text-align: right;
 }
 
+.admin-signup-score {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.admin-signup-email {
+    color: var(--text-primary);
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.admin-signup-meta {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
 @media (max-width: 960px) {
     .dashboard-top-grid {
         grid-template-columns: 1fr;
@@ -5668,6 +5687,10 @@ textarea:focus-visible {
 
     .analytics-overview {
         grid-template-columns: 1fr;
+    }
+
+    .admin-signup-score {
+        align-items: flex-start;
     }
 
     .dashboard-hero-card {

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Signup Emails - Social Contract{% endblock %}
+
+{% block meta_description %}Admin view of user signup emails and account creation timestamps.{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <header class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">Signup Emails</h1>
+            <p class="header-subtitle">Showing the latest {{ signup_users|length }} signups with an email.</p>
+        </div>
+        <div class="header-actions">
+            <a href="{{ url_for('analytics_dashboard') }}" class="btn btn-ghost btn-sm">Back to Analytics</a>
+            <form method="GET" action="{{ url_for('admin_signups') }}">
+                <label for="limit" class="sr-only">Rows</label>
+                <select id="limit" name="limit" class="btn btn-ghost analytics-range" onchange="this.form.submit()">
+                    <option value="100" {% if limit == 100 %}selected{% endif %}>100 rows</option>
+                    <option value="200" {% if limit == 200 %}selected{% endif %}>200 rows</option>
+                    <option value="500" {% if limit == 500 %}selected{% endif %}>500 rows</option>
+                    <option value="1000" {% if limit == 1000 %}selected{% endif %}>1000 rows</option>
+                </select>
+            </form>
+        </div>
+    </header>
+
+    <section class="analytics-overview">
+        <div class="analytics-overview-item">
+            <span class="analytics-overview-label">Total Accounts</span>
+            <span class="analytics-overview-value">{{ total_users }}</span>
+        </div>
+        <div class="analytics-overview-item">
+            <span class="analytics-overview-label">Accounts With Email</span>
+            <span class="analytics-overview-value">{{ total_with_email }}</span>
+        </div>
+    </section>
+
+    <section class="dashboard-section">
+        <div class="section-header">
+            <h2>Recent Signups</h2>
+        </div>
+        {% if signup_users %}
+        <div class="leaderboard analytics-table">
+            {% for user in signup_users %}
+            <div class="leaderboard-row">
+                <div class="leaderboard-user">
+                    <div class="leaderboard-avatar">{{ user.username[0]|upper }}</div>
+                    <div class="leaderboard-name">
+                        {{ user.display_name or user.username }}
+                        <div class="admin-signup-meta">{{ user.username }}</div>
+                    </div>
+                </div>
+                <div class="leaderboard-score admin-signup-score">
+                    <div class="admin-signup-email">{{ user.email }}</div>
+                    <div class="admin-signup-meta">{{ user.created_at.strftime('%Y-%m-%d %H:%M UTC') if user.created_at else 'unknown' }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="header-subtitle">No signup emails found yet.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

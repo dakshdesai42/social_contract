@@ -101,6 +101,13 @@
                     </svg>
                     Analytics
                 </a>
+                <a href="{{ url_for('admin_signups') }}" class="nav-link {% if request.endpoint == 'admin_signups' %}active{% endif %}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16v16H4z"></path>
+                        <path d="M4 7l8 6 8-6"></path>
+                    </svg>
+                    Signups
+                </a>
                 {% endif %}
             </div>
 

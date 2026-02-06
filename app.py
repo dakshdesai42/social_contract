@@ -1981,6 +1981,40 @@ def analytics_dashboard():
     )
 
 
+@app.route('/admin/signups')
+@login_required
+def admin_signups():
+    if not is_admin():
+        flash('Unauthorized.', 'error')
+        return redirect(url_for('dashboard'))
+
+    limit_raw = request.args.get('limit', '200').strip()
+    try:
+        limit = int(limit_raw)
+    except ValueError:
+        limit = 200
+    limit = max(25, min(limit, 1000))
+
+    signup_users = User.query.filter(
+        User.email.isnot(None),
+        User.email != ''
+    ).order_by(User.created_at.desc()).limit(limit).all()
+
+    total_users = User.query.count()
+    total_with_email = User.query.filter(
+        User.email.isnot(None),
+        User.email != ''
+    ).count()
+
+    return render_template(
+        'admin_signups.html',
+        signup_users=signup_users,
+        limit=limit,
+        total_users=total_users,
+        total_with_email=total_with_email
+    )
+
+
 @app.route('/admin/nuke/<int:checkin_id>', methods=['POST'])
 @login_required
 def nuke_checkin(checkin_id):

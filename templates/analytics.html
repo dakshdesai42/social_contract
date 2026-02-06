@@ -12,6 +12,7 @@
             <p class="header-subtitle">DAU, countries, and top pages from {{ start_date }} to {{ end_date }}.</p>
         </div>
         <div class="header-actions">
+            <a href="{{ url_for('admin_signups') }}" class="btn btn-ghost btn-sm">View Signup Emails</a>
             <form method="GET" action="{{ url_for('analytics_dashboard') }}">
                 <label for="days" class="sr-only">Range</label>
                 <select id="days" name="days" class="btn btn-ghost analytics-range" onchange="this.form.submit()">
