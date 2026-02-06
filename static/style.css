@@ -5090,59 +5090,77 @@ textarea:focus-visible {
    ============================================ */
 
 .quickstart-card {
-    background: linear-gradient(145deg, rgba(16, 185, 129, 0.08), var(--bg-card) 40%);
-    border: 1px solid rgba(16, 185, 129, 0.24);
-    border-radius: var(--radius-card);
-    padding: var(--space-4);
+    position: relative;
+    overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 18px;
     margin-bottom: var(--space-4);
+    box-shadow: var(--shadow-sm);
+}
+
+.quickstart-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(20, 184, 122, 0.75), rgba(20, 184, 122, 0.08));
 }
 
 .quickstart-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-2);
-    margin-bottom: var(--space-2);
+    gap: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-subtle);
 }
 
 .quickstart-header h2 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     letter-spacing: -0.01em;
 }
 
 .quickstart-subtitle {
     color: var(--text-secondary);
-    font-size: 0.92rem;
-    line-height: 1.5;
-    margin-bottom: var(--space-3);
+    font-size: 0.88rem;
+    line-height: 1.45;
+    margin-bottom: 12px;
 }
 
 .quickstart-steps {
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
+    gap: 10px;
 }
 
 .quickstart-step {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    background: var(--bg-elevated);
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 10px;
+    background: var(--bg-subtle);
     border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
-    padding: 12px 14px;
+    border-radius: var(--radius-xl);
+    padding: 13px 14px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
 
 .quickstart-step.done {
-    border-color: rgba(16, 185, 129, 0.35);
-    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.42);
+    background: linear-gradient(145deg, rgba(20, 184, 122, 0.14), rgba(20, 184, 122, 0.03));
 }
 
 .quickstart-mark {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     border-radius: var(--radius-full);
-    border: 1px solid var(--border-default);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.02);
     color: var(--text-secondary);
     display: inline-flex;
     align-items: center;
@@ -5153,7 +5171,8 @@ textarea:focus-visible {
 
 .quickstart-step.done .quickstart-mark {
     border-color: rgba(16, 185, 129, 0.45);
-    color: var(--accent-light);
+    background: rgba(20, 184, 122, 0.15);
+    color: #7df0c1;
 }
 
 .quickstart-step-content {
@@ -5164,18 +5183,21 @@ textarea:focus-visible {
 }
 
 .quickstart-step-content strong {
-    font-size: 0.9rem;
+    font-size: 0.92rem;
+    line-height: 1.3;
 }
 
 .quickstart-step-content span {
-    color: var(--text-muted);
+    color: var(--text-secondary);
     font-size: 0.82rem;
+    line-height: 1.35;
 }
 
 .quickstart-actions {
-    display: flex;
-    gap: var(--space-1);
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    min-width: min(280px, 100%);
 }
 
 .quickstart-modal-backdrop {
@@ -5222,12 +5244,14 @@ textarea:focus-visible {
 
 @media (max-width: 768px) {
     .quickstart-step {
-        flex-direction: column;
-        align-items: flex-start;
+        grid-template-columns: 30px minmax(0, 1fr);
+        gap: 10px;
     }
 
     .quickstart-actions {
+        grid-column: 1 / -1;
         width: 100%;
+        min-width: 0;
     }
 
     .quickstart-actions .btn {
@@ -5252,13 +5276,26 @@ textarea:focus-visible {
 }
 
 .dashboard-hero-card {
-    background: linear-gradient(150deg, rgba(20, 184, 122, 0.13), var(--bg-card) 52%);
-    border: 1px solid rgba(20, 184, 122, 0.26);
-    border-radius: var(--radius-lg);
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(150deg, rgba(20, 184, 122, 0.09), var(--bg-card) 52%);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
     padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 14px;
+    box-shadow: var(--shadow-sm);
+}
+
+.dashboard-hero-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(20, 184, 122, 0.7), rgba(20, 184, 122, 0.08));
 }
 
 .dashboard-hero-head {
@@ -5294,8 +5331,8 @@ textarea:focus-visible {
 .dashboard-health-item {
     padding: 9px 10px;
     border-radius: var(--radius-md);
-    border: 1px solid var(--border-subtle);
-    background: var(--bg-elevated);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--bg-subtle);
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -5327,13 +5364,14 @@ textarea:focus-visible {
 }
 
 .dashboard-metrics-card {
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-xl);
     border: 1px solid var(--border-subtle);
     background: var(--bg-card);
     padding: 12px;
     display: flex;
     flex-direction: column;
     gap: 9px;
+    box-shadow: var(--shadow-sm);
 }
 
 .dashboard-metrics-header {
@@ -5374,8 +5412,8 @@ textarea:focus-visible {
 .dashboard-metric-tile {
     padding: 10px 11px;
     border-radius: var(--radius-md);
-    border: 1px solid var(--border-subtle);
-    background: var(--bg-elevated);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--bg-subtle);
     display: grid;
     grid-template-columns: 20px minmax(0, 1fr);
     column-gap: 9px;
