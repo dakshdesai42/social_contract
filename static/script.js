@@ -517,67 +517,162 @@
             if (!forms.length) return;
 
             const csrfMeta = $('meta[name="csrf-token"]');
-            const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '';
+            this.csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '';
+            this.pendingByChallenge = new Map();
 
-            forms.forEach(form => {
-                form.addEventListener('click', e => e.stopPropagation());
-                form.addEventListener('submit', e => {
-                    e.preventDefault();
-                    this.submit(form, csrfToken);
-                });
+            forms.forEach(form => this.bind(form));
+        },
+
+        bind(form) {
+            if (!form || form.dataset.quickCheckinBound === '1') return;
+            form.dataset.quickCheckinBound = '1';
+
+            form.addEventListener('click', e => e.stopPropagation());
+            form.addEventListener('submit', e => {
+                e.preventDefault();
+                this.submit(form);
             });
         },
 
-        submit(form, csrfToken) {
-            const btn = $('button[type="submit"]', form);
-            if (!btn || btn.disabled) return;
-
-            const originalHTML = btn.innerHTML;
-            btn.disabled = true;
-            btn.classList.add('is-loading');
-            btn.setAttribute('aria-busy', 'true');
-            btn.innerHTML = '<svg class="spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>';
+        submit(form) {
+            const challengeId = this.getChallengeId(form);
+            if (!challengeId || this.pendingByChallenge.has(challengeId)) return;
 
             const formData = new FormData(form);
-            const challengeId = this.getChallengeId(form);
+            const state = this.captureState(challengeId);
+
+            if (!state.buttons.length) return;
+
+            this.pendingByChallenge.set(challengeId, state);
+            this.applyOptimisticState(state);
 
             fetch(form.action, {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': csrfToken
+                    'X-CSRFToken': this.csrfToken
                 },
-                body: formData
+                body: formData,
+                credentials: 'same-origin'
             })
-            .then(r => r.json())
+            .then(async r => {
+                const data = await r.json().catch(() => ({}));
+                if (!r.ok && !data.error) {
+                    data.error = 'Something went wrong. Please try again.';
+                }
+                return data;
+            })
             .then(data => {
+                this.pendingByChallenge.delete(challengeId);
+
                 if (data.error) {
-                    btn.disabled = false;
-                    btn.classList.remove('is-loading');
-                    btn.setAttribute('aria-busy', 'false');
-                    btn.innerHTML = originalHTML;
+                    this.rollbackState(state);
                     FlashMessages.show(data.error, 'error');
                     return;
                 }
 
-                // Haptic feedback
-                if (navigator.vibrate) navigator.vibrate(50);
-
-                this.markPendingListDone(challengeId, data.points_earned);
-                this.markChallengeCardDone(challengeId);
-
-                // Update progress bar
-                this.updateProgress();
-
-                FlashMessages.show(data.message || 'Checked in!', 'success');
+                this.finalizeState(state, data);
             })
             .catch(() => {
-                btn.disabled = false;
-                btn.classList.remove('is-loading');
-                btn.setAttribute('aria-busy', 'false');
-                btn.innerHTML = originalHTML;
+                this.pendingByChallenge.delete(challengeId);
+                this.rollbackState(state);
                 FlashMessages.show('Something went wrong. Please try again.', 'error');
             });
+        },
+
+        captureState(challengeId) {
+            const forms = this.getFormsForChallenge(challengeId);
+            const buttons = forms.map(targetForm => {
+                const btn = $('button[type="submit"]', targetForm);
+                if (!btn) return null;
+                return {
+                    btn,
+                    html: btn.innerHTML,
+                    className: btn.className,
+                    disabled: btn.disabled,
+                    ariaBusy: btn.getAttribute('aria-busy')
+                };
+            }).filter(Boolean);
+
+            const item = this.getPendingItem(challengeId);
+            const itemMeta = item ? $('.today-pending-meta', item) : null;
+            const itemForm = item ? $('.quick-checkin-form', item) : null;
+            const card = this.getChallengeCard(challengeId);
+            const badge = card ? $('.badge', card) : null;
+
+            return {
+                challengeId,
+                buttons,
+                item,
+                itemMeta,
+                itemMetaText: itemMeta ? itemMeta.textContent : '',
+                itemForm,
+                itemFormDisplay: itemForm ? itemForm.style.display : '',
+                badge,
+                badgeClassName: badge ? badge.className : '',
+                badgeText: badge ? badge.textContent : ''
+            };
+        },
+
+        applyOptimisticState(state) {
+            state.buttons.forEach(({ btn }) => {
+                if (!btn || !btn.isConnected) return;
+                btn.disabled = true;
+                btn.classList.add('is-loading', 'checkin-optimistic');
+                btn.setAttribute('aria-busy', 'true');
+                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Done</span>';
+            });
+
+            if (state.item && state.item.classList.contains('today-pending-item')) {
+                state.item.classList.add('checkin-syncing');
+                if (state.itemMeta) state.itemMeta.textContent = 'Syncing...';
+                if (state.itemForm) state.itemForm.style.display = 'none';
+            }
+
+            if (state.badge && state.badgeText && state.badgeText.trim().toLowerCase() === 'pending') {
+                state.badge.className = 'badge badge-warning';
+                state.badge.textContent = 'Syncing';
+            }
+
+            if (navigator.vibrate) navigator.vibrate(20);
+
+            this.updateProgress({ includeSyncing: true, allowAllDone: false });
+        },
+
+        rollbackState(state) {
+            state.buttons.forEach(({ btn, html, className, disabled, ariaBusy }) => {
+                if (!btn || !btn.isConnected) return;
+                btn.innerHTML = html;
+                btn.className = className;
+                btn.disabled = disabled;
+                if (ariaBusy === null || typeof ariaBusy === 'undefined') {
+                    btn.removeAttribute('aria-busy');
+                } else {
+                    btn.setAttribute('aria-busy', ariaBusy);
+                }
+            });
+
+            if (state.item && state.item.isConnected) {
+                state.item.classList.remove('checkin-syncing');
+                if (state.itemMeta) state.itemMeta.textContent = state.itemMetaText;
+                if (state.itemForm) state.itemForm.style.display = state.itemFormDisplay;
+            }
+
+            if (state.badge && state.badge.isConnected) {
+                state.badge.className = state.badgeClassName;
+                state.badge.textContent = state.badgeText;
+            }
+
+            this.updateProgress();
+        },
+
+        finalizeState(state, data) {
+            this.markPendingListDone(state.challengeId, data.points_earned);
+            this.markChallengeCardDone(state.challengeId);
+            this.updateProgress();
+
+            if (navigator.vibrate) navigator.vibrate([15, 40, 15]);
+            FlashMessages.show(data.message || 'Checked in!', 'success');
         },
 
         getChallengeId(form) {
@@ -589,6 +684,24 @@
 
             const match = (form.action || '').match(/\/challenge\/(\d+)\/checkin/);
             return match ? match[1] : null;
+        },
+
+        getFormsForChallenge(challengeId) {
+            return $$('form.quick-checkin-form, form.checkin-form').filter(
+                form => this.getChallengeId(form) === String(challengeId)
+            );
+        },
+
+        getPendingItem(challengeId) {
+            const itemById = $('#today-item-' + challengeId);
+            if (itemById && itemById.classList.contains('today-pending-item')) return itemById;
+            return $('.today-pending-item[data-challenge-id="' + challengeId + '"]');
+        },
+
+        getChallengeCard(challengeId) {
+            return $$('.challenge-card').find(
+                card => (card.getAttribute('href') || '').includes('/challenge/' + challengeId)
+            );
         },
 
         markPendingListDone(challengeId, pointsEarned) {
@@ -621,11 +734,17 @@
             if (checkinForm) checkinForm.remove();
         },
 
-        updateProgress() {
-            const allItems = $$('#today-pending-list > div');
+        updateProgress(options = {}) {
+            const includeSyncing = !!options.includeSyncing;
+            const allowAllDone = options.allowAllDone !== false;
+            const totalRows = $$('#today-pending-list > .today-pending-item, #today-pending-list > .today-done-item');
+            if (!totalRows.length) return;
+
+            const allItems = totalRows;
             const doneItems = $$('#today-pending-list .today-done-item');
             const total = allItems.length;
-            const done = doneItems.length;
+            const syncing = includeSyncing ? $$('#today-pending-list .today-pending-item.checkin-syncing').length : 0;
+            const done = doneItems.length + syncing;
 
             const countEl = $('#today-progress-count');
             if (countEl) countEl.textContent = done + '/' + total + ' done';
@@ -634,7 +753,7 @@
             if (fillEl) fillEl.style.width = (total > 0 ? (done / total * 100) : 0) + '%';
 
             // All done state
-            if (done >= total && total > 0) {
+            if (allowAllDone && done >= total && total > 0) {
                 const list = $('#today-pending-list');
                 if (list) {
                     list.innerHTML = '<div class="today-all-done"><div class="today-all-done-icon">\uD83C\uDF89</div><h3>All done for today!</h3><p>You\'ve checked in to all your challenges. See you tomorrow!</p></div>';

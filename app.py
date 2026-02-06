@@ -771,6 +771,9 @@ def dashboard():
     user_id = session['user_id']
     today = get_user_today()
 
+    if session.pop('needs_achievement_refresh', False):
+        check_achievements(user_id)
+
     check_completed_challenges(user_id)
 
     # Get active challenges
@@ -1346,7 +1349,10 @@ def checkin(challenge_id):
 
     db.session.commit()
 
-    check_achievements(user_id)
+    if is_ajax:
+        session['needs_achievement_refresh'] = True
+    else:
+        check_achievements(user_id)
 
     # Build response message
     msg_parts = [f'+{points_earned} points (Streak: {new_streak})']
