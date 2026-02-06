@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Explore Challenges - Social Contract{% endblock %}
+
+{% block meta_description %}Discover and join public accountability challenges. Compete with the community.{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <header class="page-header">
+        <h1>Explore Challenges</h1>
+        <p class="header-subtitle">Join public challenges and compete with the community</p>
+    </header>
+
+    {% if challenges %}
+    <div class="explore-controls">
+        <input type="search" id="explore-search" class="form-input" placeholder="Search challenges...">
+        <select id="explore-sort" class="form-input">
+            <option value="newest">Newest</option>
+            <option value="popular">Most Members</option>
+            <option value="alpha">A-Z</option>
+        </select>
+    </div>
+
+    <div class="challenges-grid explore-grid">
+        {% for challenge in challenges %}
+        <div class="challenge-card explore-card" data-name="{{ challenge.name }}" data-desc="{{ challenge.description or '' }}" data-members="{{ challenge.member_count }}">
+            <div class="challenge-header">
+                <h3>{{ challenge.name }}</h3>
+                <span class="badge badge-ghost">{{ challenge.member_count }} members</span>
+            </div>
+
+            {% if challenge.description %}
+            <p class="challenge-desc">{{ challenge.description }}</p>
+            {% endif %}
+
+            <div class="challenge-meta">
+                <span class="meta-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    {{ challenge.creator_name }}
+                </span>
+                <span class="meta-item">+{{ challenge.points_per_checkin }} pts/day</span>
+            </div>
+
+            <form action="{{ url_for('join_challenge') }}" method="POST" class="join-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="join_code" value="{{ challenge.join_code }}">
+                <button type="submit" class="btn btn-primary btn-sm btn-full">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                        <polyline points="10 17 15 12 10 7"></polyline>
+                        <line x1="15" y1="12" x2="3" y2="12"></line>
+                    </svg>
+                    Join Challenge
+                </button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">🌍</div>
+        <h3>No public challenges yet</h3>
+        <p>Be the first to create a public challenge!</p>
+        <a href="{{ url_for('create_challenge') }}" class="btn btn-primary">Create Public Challenge</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

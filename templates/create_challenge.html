@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Create Challenge - Social Contract{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <header class="page-header">
+        <a href="{{ url_for('dashboard') }}" class="back-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Dashboard
+        </a>
+        <h1 class="page-title">Create New Challenge</h1>
+        <p class="header-subtitle">Set up a challenge and invite your friends to compete</p>
+    </header>
+
+    <form method="POST" class="form-card">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-section">
+            <h3>Start from a Template</h3>
+            <p class="form-section-desc">Choose a template or create from scratch below.</p>
+            <div class="templates-grid">
+                {% for t in templates %}
+                <button type="button" class="template-card" data-template="{{ t.id }}"
+                        data-name="{{ t.name }}" data-description="{{ t.description }}"
+                        data-points="{{ t.points_per_checkin }}" data-streak="{{ t.streak_bonus }}"
+                        data-verification="{{ t.verification_type }}" data-duration="{{ t.suggested_duration }}">
+                    <span class="template-icon">{{ t.icon }}</span>
+                    <span class="template-name">{{ t.name }}</span>
+                    <span class="template-duration">{{ t.suggested_duration }} days</span>
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Challenge Details</h3>
+
+            <div class="form-group">
+                <label class="form-label" for="name">Challenge Name <span class="required">*</span></label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    class="form-input"
+                    required
+                    placeholder="e.g., Exercise Daily, Read 30 Minutes, No Junk Food"
+                    maxlength="100"
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="description">Description</label>
+                <textarea
+                    id="description"
+                    name="description"
+                    class="form-input"
+                    rows="3"
+                    placeholder="What's this challenge about? Any rules?"
+                    maxlength="500"
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="end_date">End Date (optional)</label>
+                <input
+                    type="date"
+                    id="end_date"
+                    name="end_date"
+                    class="form-input"
+                >
+                <span class="form-hint">Leave empty for an ongoing challenge. Set a date to auto-declare a winner.</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="milestone_target">Milestone Target (optional)</label>
+                <input
+                    type="number"
+                    id="milestone_target"
+                    name="milestone_target"
+                    class="form-input"
+                    placeholder="e.g., 20"
+                    min="1"
+                    max="365"
+                >
+                <span class="form-hint">Set a check-in target (e.g., 20 out of 30 days). Members see a progress bar.</span>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="is_public">
+                    <span class="checkbox-custom"></span>
+                    <span>Make this challenge public</span>
+                </label>
+                <span class="form-hint">Public challenges appear in Explore and anyone can join</span>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Points &amp; Rewards</h3>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="points_per_checkin">Points per Check-in</label>
+                    <input
+                        type="number"
+                        id="points_per_checkin"
+                        name="points_per_checkin"
+                        class="form-input"
+                        value="10"
+                        min="1"
+                        max="100"
+                    >
+                    <span class="form-hint">Points earned for each daily check-in</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="streak_bonus">Streak Bonus</label>
+                    <input
+                        type="number"
+                        id="streak_bonus"
+                        name="streak_bonus"
+                        class="form-input"
+                        value="5"
+                        min="0"
+                        max="50"
+                    >
+                    <span class="form-hint">Extra points per streak day</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="verification_type">Check-in Verification</label>
+                <select id="verification_type" name="verification_type" class="form-input">
+                    <option value="none">Tap only (no proof needed)</option>
+                    <option value="photo_optional">Photo optional</option>
+                    <option value="photo_required">Photo required</option>
+                </select>
+                <span class="form-hint">Require members to upload a photo as proof of completion</span>
+            </div>
+        </div>
+
+        <div class="form-section points-preview">
+            <h3>Points Preview</h3>
+            <div class="preview-grid">
+                <div class="preview-item">
+                    <span class="preview-label">Day 1</span>
+                    <span class="preview-value" id="day1-points">10 pts</span>
+                </div>
+                <div class="preview-item">
+                    <span class="preview-label">Day 5 (streak)</span>
+                    <span class="preview-value" id="day5-points">30 pts</span>
+                </div>
+                <div class="preview-item">
+                    <span class="preview-label">Day 7 (streak)</span>
+                    <span class="preview-value" id="day7-points">40 pts</span>
+                </div>
+                <div class="preview-item">
+                    <span class="preview-label">Day 30 (streak)</span>
+                    <span class="preview-value" id="day30-points">155 pts</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+                Create Challenge
+            </button>
+        </div>
+    </form>
+
+    <!-- Template confirmation modal -->
+    <div class="modal-backdrop" id="template-modal">
+        <div class="modal-card">
+            <h3 class="modal-title">Create this challenge?</h3>
+            <div class="modal-body">
+                <p class="modal-challenge-name" id="modal-challenge-name"></p>
+                <p class="modal-challenge-desc" id="modal-challenge-desc"></p>
+                <div class="modal-details">
+                    <div class="modal-detail">
+                        <span class="modal-detail-label">Duration</span>
+                        <span class="modal-detail-value" id="modal-challenge-duration"></span>
+                    </div>
+                    <div class="modal-detail">
+                        <span class="modal-detail-label">Points</span>
+                        <span class="modal-detail-value" id="modal-challenge-points"></span>
+                    </div>
+                    <div class="modal-detail">
+                        <span class="modal-detail-label">Streak Bonus</span>
+                        <span class="modal-detail-value" id="modal-challenge-streak"></span>
+                    </div>
+                    <div class="modal-detail">
+                        <span class="modal-detail-label">Verification</span>
+                        <span class="modal-detail-value" id="modal-challenge-verification"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" id="modal-cancel-btn">Cancel</button>
+                <button type="button" class="btn btn-secondary" id="modal-customize-btn">Customize</button>
+                <button type="button" class="btn btn-primary" id="modal-confirm-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Yes, Create
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='create-challenge.js') }}"></script>
+{% endblock %}

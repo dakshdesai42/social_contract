@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications - Social Contract{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <header class="page-header">
+        <h1 class="page-title">Notifications</h1>
+        <p class="header-subtitle">Stay updated on your challenges and achievements</p>
+    </header>
+
+    {% if notifications %}
+    <div class="notifications-list">
+        {% for notif in notifications %}
+        <{% if notif.link %}a href="{{ notif.link }}"{% else %}div{% endif %} class="notification-item {% if not notif.is_read %}unread{% endif %} notif-type-{{ notif.type }}">
+            <div class="notification-icon">
+                {% if notif.type == 'achievement_earned' %}
+                &#127942;
+                {% elif notif.type == 'challenge_completed' %}
+                &#127937;
+                {% elif notif.type == 'challenge_activity' %}
+                &#128101;
+                {% else %}
+                &#128276;
+                {% endif %}
+            </div>
+            <div class="notification-content">
+                <span class="notification-title">{{ notif.title }}</span>
+                <p class="notification-message">{{ notif.message }}</p>
+                <span class="notification-time">{{ time_ago(notif.created_at) }}</span>
+            </div>
+            {% if not notif.is_read %}
+            <span class="notification-unread-dot"></span>
+            {% endif %}
+        </{% if notif.link %}a{% else %}div{% endif %}>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">&#128276;</div>
+        <h3 class="empty-title">No notifications yet</h3>
+        <p class="empty-desc">Notifications will appear here when you earn achievements, challenges end, or friends join your challenges.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

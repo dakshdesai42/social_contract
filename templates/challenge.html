@@ -1,0 +1,408 @@
+{% extends "base.html" %}
+
+{% block title %}{{ challenge.name }} - Social Contract{% endblock %}
+
+{% block meta_description %}{{ challenge.name }}{% if challenge.description %} - {{ challenge.description[:120] }}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="challenge-view" data-challenge-id="{{ challenge.id }}" data-challenge-name="{{ challenge.name }}" data-join-code="{{ challenge.join_code }}">
+    <header class="page-header">
+        <a href="{{ url_for('dashboard') }}" class="back-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Dashboard
+        </a>
+
+        <div class="challenge-title-row">
+            <div>
+                <h1 class="page-title">{{ challenge.name }}</h1>
+                {% if challenge.description %}
+                <p class="challenge-description">{{ challenge.description }}</p>
+                {% endif %}
+            </div>
+
+            {% if challenge.is_completed and challenge.winner_name %}
+            <span class="badge badge-accent badge-lg">&#127942; Winner: {{ challenge.winner_name }}</span>
+            {% elif checked_in_today %}
+            <span class="badge badge-success badge-lg">Checked in</span>
+            {% endif %}
+        </div>
+
+        <div class="challenge-meta">
+            <span class="meta-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Created by {{ challenge.creator_name }}
+            </span>
+            <span class="meta-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                +{{ challenge.points_per_checkin }} pts/day
+            </span>
+            <span class="meta-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                +{{ challenge.streak_bonus }} streak bonus
+            </span>
+            {% if challenge.end_date %}
+            <span class="meta-item meta-date">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                {% if challenge.is_completed %}
+                    Ended {{ challenge.end_date }}
+                {% elif days_remaining is not none %}
+                    {% if days_remaining > 0 %}
+                        {{ days_remaining }} day{{ 's' if days_remaining != 1 else '' }} remaining
+                    {% elif days_remaining == 0 %}
+                        Ends today
+                    {% endif %}
+                {% endif %}
+            </span>
+            {% endif %}
+        </div>
+
+        {% if challenge.is_completed %}
+        <div class="winner-banner">
+            <div class="winner-banner-icon">&#127942;</div>
+            <div class="winner-banner-content">
+                <h3>Challenge Complete!</h3>
+                <p>{{ challenge.winner_name or 'No winner' }} won with the most points. Congratulations!</p>
+            </div>
+        </div>
+        {% endif %}
+    </header>
+
+    <div class="challenge-content">
+        <!-- Check-in Section -->
+        {% if not challenge.is_completed %}
+        <section class="checkin-section">
+            {% if not checked_in_today %}
+            <div class="checkin-card">
+                <h2>Daily Check-in</h2>
+                {% if challenge.description %}
+                <p class="checkin-what-to-do">{{ challenge.description }}</p>
+                {% else %}
+                <p>Confirm you completed today's challenge!</p>
+                {% endif %}
+
+                <!-- Status indicators -->
+                <div class="checkin-status-bar">
+                    <div class="status-indicator status-pending-indicator">
+                        <span>&#9898;</span> Today: not checked in yet
+                    </div>
+                    <div class="status-indicator status-streak-indicator">
+                        <span>&#128293;</span> Streak: {{ membership.current_streak }} day{{ 's' if membership.current_streak != 1 else '' }}
+                        {% if checkin_preview.days_to_next_freeze <= 7 %}
+                        <span class="next-bonus-hint">(next freeze in {{ checkin_preview.days_to_next_freeze }} day{{ 's' if checkin_preview.days_to_next_freeze != 1 else '' }})</span>
+                        {% endif %}
+                    </div>
+                    <div class="status-indicator status-points-indicator">
+                        <span>&#11088;</span> Check in now for <strong>+{{ checkin_preview.points }} pts</strong>
+                        {% if checkin_preview.get('freeze_will_be_used') %}
+                        <span class="freeze-use-warning">&#10052;&#65039; 1 freeze will be used to save your streak</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <form action="{{ url_for('checkin', challenge_id=challenge.id) }}" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="client_date" id="client_date" value="">
+                    <input type="hidden" name="client_timezone" class="timezone-field" value="UTC">
+                    <div class="form-group">
+                        <input
+                            type="text"
+                            name="note"
+                            class="form-input"
+                            placeholder="Add a note (optional)"
+                            maxlength="200"
+                        >
+                    </div>
+
+                    {% if challenge.verification_type == 'photo_required' %}
+                    <div class="form-group photo-upload-group">
+                        <label for="photo" class="form-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px;">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            Add proof photo <span class="required">(required)</span>
+                        </label>
+                        <input type="file" name="photo" id="photo" class="form-input" accept="image/*" required>
+                        <span class="photo-privacy-hint">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px;">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            Visible to challenge members only
+                        </span>
+                    </div>
+                    {% elif challenge.verification_type == 'photo_optional' %}
+                    <div class="form-group photo-upload-group">
+                        <label for="photo" class="form-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px;">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            Add proof photo <span class="photo-optional-tag">(optional)</span>
+                        </label>
+                        <input type="file" name="photo" id="photo" class="form-input" accept="image/*">
+                        <span class="photo-privacy-hint">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px;">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            Visible to challenge members only. No photo? No problem.
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary btn-lg btn-block checkin-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Check In Now
+                    </button>
+                </form>
+                {% if membership.streak_freezes > 0 and membership.current_streak > 0 %}
+                <div class="freeze-safety-net">
+                    <span class="freeze-icon">&#10052;&#65039;</span>
+                    You have {{ membership.streak_freezes }} streak freeze{{ 's' if membership.streak_freezes != 1 else '' }}. Your {{ membership.current_streak }}-day streak is protected!
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="checkin-card checked">
+                <div class="checked-icon">&#9989;</div>
+                <h2>You're all set for today!</h2>
+
+                <!-- Status indicators (checked-in state) -->
+                <div class="checkin-status-bar">
+                    <div class="status-indicator status-done-indicator">
+                        <span>&#9989;</span> Today: Checked in{% if checkin_time %} at {{ checkin_time.strftime('%H:%M') }}{% endif %}
+                    </div>
+                    <div class="status-indicator status-streak-indicator">
+                        <span>&#128293;</span> Streak: {{ membership.current_streak }} day{{ 's' if membership.current_streak != 1 else '' }}
+                        {% if checkin_preview.days_to_next_freeze <= 7 %}
+                        <span class="next-bonus-hint">(next freeze in {{ checkin_preview.days_to_next_freeze }} day{{ 's' if checkin_preview.days_to_next_freeze != 1 else '' }})</span>
+                        {% endif %}
+                    </div>
+                    <div class="status-indicator status-freeze-indicator">
+                        <span>&#10052;&#65039;</span> {{ membership.streak_freezes }} freeze{{ 's' if membership.streak_freezes != 1 else '' }} banked
+                        <span class="next-bonus-hint">
+                            {% if membership.streak_freezes > 0 %}
+                                &mdash; protects your streak if you miss a day
+                            {% else %}
+                                &mdash; earn 1 for every 7-day streak
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <p class="checkin-comeback">See you tomorrow. Keep the streak alive!</p>
+            </div>
+            {% endif %}
+        </section>
+        {% endif %}
+
+        <!-- Milestone Progress -->
+        {% if milestone_progress %}
+        <section class="milestone-section">
+            <div class="milestone-card">
+                <div class="milestone-header">
+                    <h3>Milestone Goal</h3>
+                    <span class="milestone-count">{{ milestone_progress.current }} / {{ milestone_progress.target }} days</span>
+                </div>
+                <div class="milestone-bar">
+                    <div class="milestone-fill" style="width: {{ milestone_progress.percent }}%"></div>
+                </div>
+                {% if milestone_progress.percent >= 100 %}
+                <p class="milestone-done">Milestone reached!</p>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Leaderboard -->
+        <section class="leaderboard-section">
+            <div class="section-header">
+                <h2>&#127942; Leaderboard</h2>
+            </div>
+
+            <div class="leaderboard">
+                {% for member in leaderboard %}
+                <div class="leaderboard-row {% if member.user_id == session.user_id %}is-you{% endif %} {% if loop.index <= 3 %}top-{{ loop.index }}{% endif %}">
+                    <div class="leaderboard-rank {% if loop.index == 1 %}gold{% elif loop.index == 2 %}silver{% elif loop.index == 3 %}bronze{% endif %}">
+                        {% if loop.index == 1 %}
+                        &#129351;
+                        {% elif loop.index == 2 %}
+                        &#129352;
+                        {% elif loop.index == 3 %}
+                        &#129353;
+                        {% else %}
+                        {{ loop.index }}
+                        {% endif %}
+                    </div>
+
+                    <div class="leaderboard-user">
+                        {{ render_avatar(member.display_name, member.profile_photo, 'leaderboard-avatar') }}
+                        <div class="leaderboard-info">
+                            <span class="leaderboard-name">
+                                {{ member.display_name }}
+                                {% if member.user_id == session.user_id %}
+                                <span class="leaderboard-you">You</span>
+                                {% endif %}
+                            </span>
+                            <span class="leaderboard-streak">{{ member.current_streak }} day streak &#128293;</span>
+                        </div>
+                    </div>
+
+                    <div class="leaderboard-status">
+                        {% if member.checked_in_today %}
+                        <span class="status-done">&#10003;</span>
+                        {% else %}
+                        <span class="status-pending">&#9675;</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="leaderboard-actions">
+                        {% if not member.checked_in_today and member.user_id != session.user_id and not challenge.is_completed %}
+                        <button class="nudge-btn" data-user-id="{{ member.user_id }}" title="Nudge {{ member.display_name }} to check in">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                            Nudge
+                        </button>
+                        {% endif %}
+                    </div>
+
+                    <div class="leaderboard-score">
+                        <span class="score-value">{{ member.points }}</span>
+                        <span class="score-label">pts</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Activity Feed -->
+        <section class="feed-section">
+            <div class="section-header">
+                <h2>Activity Feed</h2>
+            </div>
+            <div class="feed-list">
+                {% for checkin in recent_checkins %}
+                <div class="feed-item">
+                    {{ render_avatar(checkin.display_name, checkin.profile_photo, 'feed-avatar') }}
+                    <div class="feed-body">
+                        <div class="feed-header">
+                            <span class="feed-name">{{ checkin.display_name }}</span>
+                            <span class="feed-time">{{ time_ago(checkin.created_at) }}</span>
+                        </div>
+                        <p class="feed-text">Checked in{% if checkin.note %}: {{ checkin.note }}{% endif %}</p>
+                        {% if checkin.photo_url %}
+                        <div class="feed-photo">
+                            <img src="{{ checkin.photo_url }}" alt="Check-in proof" loading="lazy">
+                        </div>
+                        {% endif %}
+                        <div class="feed-reactions">
+                            {% set checkin_reactions = reactions_map.get(checkin.id, []) %}
+                            {% for r in checkin_reactions %}
+                            <button class="reaction-btn {% if r.user_reacted %}reacted{% endif %}" data-checkin-id="{{ checkin.id }}" data-reaction="{{ r.reaction }}">
+                                <span>{{ r.reaction }}</span>
+                                <span class="reaction-count">{{ r.count }}</span>
+                            </button>
+                            {% endfor %}
+                            <button class="reaction-add" data-checkin-id="{{ checkin.id }}" title="Add reaction">+</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Share Section -->
+        <section class="share-section">
+            <div class="share-card">
+                <h3>Invite Friends</h3>
+                <p>Share this code with friends to join:</p>
+                <div class="share-code">
+                    <span class="code" id="join-code">{{ challenge.join_code }}</span>
+                    <button class="btn btn-ghost btn-sm copy-btn" data-copy="{{ challenge.join_code }}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        Copy
+                    </button>
+                    <button class="btn btn-primary btn-sm share-native-btn" id="share-native-btn"
+                            data-share-title="{{ challenge.name }}"
+                            data-share-code="{{ challenge.join_code }}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="18" cy="5" r="3"></circle>
+                            <circle cx="6" cy="12" r="3"></circle>
+                            <circle cx="18" cy="19" r="3"></circle>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                        </svg>
+                        Share
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comments Section -->
+        <section class="comments-section">
+            <div class="section-header">
+                <h2>&#128172; Discussion</h2>
+            </div>
+
+            <div class="comment-form-wrapper">
+                <form action="{{ url_for('add_comment', challenge_id=challenge.id) }}" method="POST" class="comment-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="comment-input-row">
+                        {{ render_avatar(session.display_name, session.get('profile_photo'), 'comment-avatar') }}
+                        <input type="text" name="message" class="form-input comment-input" placeholder="Write a comment..." maxlength="500" required>
+                        <button type="submit" class="btn btn-primary btn-sm">Post</button>
+                    </div>
+                </form>
+            </div>
+
+            {% if comments %}
+            <div class="comments-list">
+                {% for comment in comments %}
+                <div class="comment-item">
+                    {{ render_avatar(comment.display_name, comment.profile_photo, 'comment-avatar') }}
+                    <div class="comment-body">
+                        <div class="comment-header">
+                            <span class="comment-author">{{ comment.display_name }}</span>
+                            <span class="comment-time">{{ time_ago(comment.created_at) }}</span>
+                        </div>
+                        <p class="comment-text">{{ comment.message }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="comments-empty">No comments yet. Start the conversation!</p>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='challenge.js') }}"></script>
+{% endblock %}

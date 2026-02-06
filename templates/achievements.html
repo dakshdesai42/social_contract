@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Achievements - Social Contract{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <header class="page-header">
+        <h1 class="page-title">Achievements</h1>
+        <p class="header-subtitle">{{ earned_count }} of {{ total_count }} unlocked</p>
+        <div class="achievements-progress">
+            <div class="achievements-progress-bar" style="width: {{ (earned_count / total_count * 100) if total_count > 0 else 0 }}%"></div>
+        </div>
+    </header>
+
+    <div class="achievements-grid">
+        {% for achievement in achievements %}
+        <div class="achievement-card {% if achievement.earned %}earned{% else %}locked{% endif %}">
+            <div class="achievement-icon-wrap">
+                {% if achievement.earned %}
+                <span class="achievement-icon">&#127942;</span>
+                {% else %}
+                <span class="achievement-icon locked-icon">&#128274;</span>
+                {% endif %}
+            </div>
+            <h3 class="achievement-name">{{ achievement.name }}</h3>
+            <p class="achievement-desc">{{ achievement.description }}</p>
+            {% if achievement.earned %}
+            <span class="achievement-date">Earned {{ time_ago(achievement.earned_at) }}</span>
+            {% else %}
+            <span class="achievement-locked-text">Keep going!</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

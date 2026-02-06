@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}500 - Server Error{% endblock %}
+{% block content %}
+<div class="auth-container" style="text-align: center; padding-top: 4rem;">
+    <h1 style="font-size: 4rem; margin-bottom: 0.5rem; color: var(--accent);">500</h1>
+    <p style="font-size: 1.25rem; color: var(--text-secondary); margin-bottom: 2rem;">Something went wrong on our end. Please try again later.</p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Go Home</a>
+</div>
+{% endblock %}

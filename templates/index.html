@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Social Contract — Build Habits Through Competition</title>
+    <meta name="description" content="Create accountability challenges, compete with friends, and build lasting habits. Daily check-ins, streaks, and leaderboards keep you on track.">
+
+    <!-- PWA -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Social Contract">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/favicon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='icons/favicon-16.png') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="landing">
+
+    <!-- Header -->
+    <header class="l-header">
+        <a href="/" class="l-logo">
+            <span class="l-logo-icon">&#9876;&#65039;</span>
+            <span class="l-logo-text">Social Contract</span>
+        </a>
+        <nav class="l-nav">
+            <a href="#how-it-works" class="l-nav-link">How it works</a>
+            <a href="{{ url_for('login') }}" class="l-nav-link">Log in</a>
+            <a href="{{ url_for('register') }}" class="l-btn l-btn--primary">Get started</a>
+        </nav>
+    </header>
+
+    <!-- Hero -->
+    <main class="l-hero">
+        <div class="l-hero-content">
+            <div class="l-badge-pill">Built for people who finish what they start</div>
+            <h1 class="l-headline">
+                Build habits that<br>
+                <span class="l-headline-accent">actually stick</span>
+            </h1>
+            <p class="l-subheadline">
+                Create accountability challenges with friends. Daily check-ins, live leaderboards, and streak tracking turn discipline into a game you want to win.
+            </p>
+            <div class="l-cta-group">
+                <a href="{{ url_for('register') }}" class="l-btn l-btn--hero">Get started free</a>
+                <a href="#how-it-works" class="l-btn l-btn--outline">See how it works</a>
+            </div>
+            <div class="l-proof">
+                <div class="l-proof-avatars">
+                    <span class="l-proof-avatar" style="--bg: linear-gradient(135deg, #10b981, #059669)">D</span>
+                    <span class="l-proof-avatar" style="--bg: linear-gradient(135deg, #8b5cf6, #6366f1)">S</span>
+                    <span class="l-proof-avatar" style="--bg: linear-gradient(135deg, #f59e0b, #d97706)">M</span>
+                    <span class="l-proof-avatar" style="--bg: linear-gradient(135deg, #ec4899, #db2777)">K</span>
+                </div>
+                <span class="l-proof-text">Join people already building better habits</span>
+            </div>
+        </div>
+
+        <div class="l-hero-visual">
+            <div class="l-device">
+                <div class="l-device-frame">
+                    <div class="l-device-notch"></div>
+                    <div class="l-device-screen">
+                        <!-- App Header -->
+                        <div class="l-app-header">
+                            <div class="l-app-user">
+                                <div class="l-app-avatar">D</div>
+                                <div class="l-app-user-info">
+                                    <span class="l-app-greeting">Welcome back</span>
+                                    <span class="l-app-name">Daksh</span>
+                                </div>
+                            </div>
+                            <div class="l-app-points">
+                                <span class="l-app-points-value">2,450</span>
+                                <span class="l-app-points-label">points</span>
+                            </div>
+                        </div>
+
+                        <!-- Challenge Card -->
+                        <div class="l-app-card">
+                            <div class="l-app-card-header">
+                                <span class="l-app-card-icon">&#127939;</span>
+                                <div class="l-app-card-info">
+                                    <span class="l-app-card-title">Exercise Daily</span>
+                                    <span class="l-app-card-meta">5 members</span>
+                                </div>
+                                <span class="l-app-badge l-app-badge--done">&#10003; Done</span>
+                            </div>
+                            <div class="l-app-stats">
+                                <div class="l-app-stat">
+                                    <span class="l-app-stat-value">840</span>
+                                    <span class="l-app-stat-label">pts</span>
+                                </div>
+                                <div class="l-app-stat l-app-stat--streak">
+                                    <span class="l-app-stat-value">14</span>
+                                    <span class="l-app-stat-label">streak</span>
+                                </div>
+                                <div class="l-app-stat">
+                                    <span class="l-app-stat-value">#1</span>
+                                    <span class="l-app-stat-label">rank</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Leaderboard -->
+                        <div class="l-app-leaderboard">
+                            <span class="l-app-section-title">Leaderboard</span>
+                            <div class="l-app-row l-app-row--gold">
+                                <span class="l-app-rank">1</span>
+                                <div class="l-app-player">
+                                    <div class="l-app-player-avatar" style="--bg: linear-gradient(135deg, #10b981, #059669)">D</div>
+                                    <span class="l-app-player-name">Daksh <span class="l-app-you">you</span></span>
+                                </div>
+                                <span class="l-app-score">840</span>
+                            </div>
+                            <div class="l-app-row">
+                                <span class="l-app-rank">2</span>
+                                <div class="l-app-player">
+                                    <div class="l-app-player-avatar" style="--bg: linear-gradient(135deg, #8b5cf6, #6366f1)">S</div>
+                                    <span class="l-app-player-name">Sarah</span>
+                                </div>
+                                <span class="l-app-score">720</span>
+                            </div>
+                            <div class="l-app-row">
+                                <span class="l-app-rank">3</span>
+                                <div class="l-app-player">
+                                    <div class="l-app-player-avatar" style="--bg: linear-gradient(135deg, #f59e0b, #d97706)">M</div>
+                                    <span class="l-app-player-name">Mike</span>
+                                </div>
+                                <span class="l-app-score">685</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Elements -->
+                <div class="l-float l-float--streak">
+                    <span class="l-float-icon">&#128293;</span>
+                    <div class="l-float-content">
+                        <span class="l-float-value">14 days</span>
+                        <span class="l-float-label">Current streak</span>
+                    </div>
+                </div>
+                <div class="l-float l-float--points">
+                    <span class="l-float-icon">&#10024;</span>
+                    <div class="l-float-content">
+                        <span class="l-float-value">+15 pts</span>
+                        <span class="l-float-label">Streak bonus</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- How It Works -->
+    <section class="l-section" id="how-it-works">
+        <div class="l-section-header">
+            <span class="l-section-label">How it works</span>
+            <h2 class="l-section-title">From goal to habit in four steps</h2>
+            <p class="l-section-desc">No complex setup. No lengthy onboarding. Just create, invite, and start.</p>
+        </div>
+        <div class="l-steps">
+            <div class="l-step">
+                <span class="l-step-num">1</span>
+                <div class="l-step-content">
+                    <h3 class="l-step-title">Create a challenge</h3>
+                    <p class="l-step-desc">Define your goal and set the rules. Exercise, reading, meditation, or anything you want to commit to.</p>
+                </div>
+            </div>
+            <div class="l-step">
+                <span class="l-step-num">2</span>
+                <div class="l-step-content">
+                    <h3 class="l-step-title">Invite your group</h3>
+                    <p class="l-step-desc">Share a 6-character code. Friends join instantly, no sign-up friction.</p>
+                </div>
+            </div>
+            <div class="l-step">
+                <span class="l-step-num">3</span>
+                <div class="l-step-content">
+                    <h3 class="l-step-title">Check in daily</h3>
+                    <p class="l-step-desc">One tap confirms your progress. Build streaks for bonus points.</p>
+                </div>
+            </div>
+            <div class="l-step">
+                <span class="l-step-num">4</span>
+                <div class="l-step-content">
+                    <h3 class="l-step-title">Climb the leaderboard</h3>
+                    <p class="l-step-desc">Track rankings in real time. Friendly competition drives consistency.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="l-cta-section">
+        <div class="l-cta-card">
+            <h2 class="l-cta-title">Ready to build habits that last?</h2>
+            <p class="l-cta-subtitle">Create your first challenge in under a minute. Free forever.</p>
+            <a href="{{ url_for('register') }}" class="l-btn l-btn--hero">Get started free</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="l-footer">
+        <div class="l-footer-inner">
+            <div class="l-footer-brand">
+                <span class="l-logo-icon">&#9876;&#65039;</span>
+                <span>Social Contract</span>
+            </div>
+            <p class="l-footer-credit">
+                Built by <a href="https://github.com/dakshdesai42" target="_blank" rel="noopener">Daksh Desai</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

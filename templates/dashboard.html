@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Social Contract{% endblock %}
+
+{% block meta_description %}Track your daily challenges, streaks, and leaderboard rankings.{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <header class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">Welcome back, {{ session.display_name }}</h1>
+            <p class="header-subtitle">Here's where your challenges stand today.</p>
+        </div>
+        <div class="header-actions">
+            <a href="{{ url_for('create_challenge') }}" class="btn btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+                New Challenge
+            </a>
+        </div>
+    </header>
+
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">&#127942;</div>
+            <div class="stat-info">
+                <span class="stat-value" data-count="{{ stats.total_points or 0 }}">{{ stats.total_points or 0 }}</span>
+                <span class="stat-label">Total Points</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">&#128293;</div>
+            <div class="stat-info">
+                <span class="stat-value" data-count="{{ stats.best_current_streak or 0 }}">{{ stats.best_current_streak or 0 }}</span>
+                <span class="stat-label">Best Current Streak</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">&#9876;&#65039;</div>
+            <div class="stat-info">
+                <span class="stat-value" data-count="{{ stats.active_challenges or 0 }}">{{ stats.active_challenges or 0 }}</span>
+                <span class="stat-label">Active Challenges</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">&#11088;</div>
+            <div class="stat-info">
+                <span class="stat-value" data-count="{{ stats.all_time_best_streak or 0 }}">{{ stats.all_time_best_streak or 0 }}</span>
+                <span class="stat-label">All-Time Best Streak</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Progress -->
+    {% if challenges %}
+    <section class="today-progress" id="today-progress">
+        <div class="today-progress-header">
+            <span class="today-progress-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Today's Progress
+            </span>
+            <span class="today-progress-count" id="today-progress-count">{{ today_done }}/{{ today_total }} done</span>
+        </div>
+        <div class="today-progress-bar">
+            <div class="today-progress-fill" id="today-progress-fill" style="width: {{ (today_done / today_total * 100) if today_total > 0 else 0 }}%"></div>
+        </div>
+
+        {% if today_done >= today_total and today_total > 0 %}
+        <div class="today-all-done" id="today-all-done">
+            <div class="today-all-done-icon">&#127881;</div>
+            <h3>All done for today!</h3>
+            <p>You've checked in to all your challenges. See you tomorrow!</p>
+        </div>
+        {% else %}
+        <div class="today-pending-list" id="today-pending-list">
+            {% for challenge in challenges %}
+            {% if not challenge.checked_in_today %}
+            <div class="today-pending-item" id="today-item-{{ challenge.id }}" data-challenge-id="{{ challenge.id }}">
+                <span class="today-pending-name">{{ challenge.name }}</span>
+                <span class="today-pending-meta">+{{ challenge.points_per_checkin }} pts</span>
+                {% if challenge.verification_type == 'photo_required' %}
+                <a href="{{ url_for('view_challenge', challenge_id=challenge.id) }}" class="btn btn-primary btn-sm">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    Photo
+                </a>
+                {% else %}
+                <form action="{{ url_for('checkin', challenge_id=challenge.id) }}" method="POST" class="quick-checkin-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="client_date" class="client-date-field" value="">
+                    <input type="hidden" name="client_timezone" class="timezone-field" value="UTC">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Check In
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="today-done-item" id="today-item-{{ challenge.id }}">
+                <span>&#9989;</span>
+                <span class="today-pending-name">{{ challenge.name }}</span>
+                <span class="today-pending-meta">Done</span>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    <!-- Active Challenges -->
+    <section class="dashboard-section">
+        <div class="section-header">
+            <h2>Your Challenges</h2>
+            <a href="{{ url_for('join_challenge') }}" class="btn btn-ghost btn-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                    <polyline points="10 17 15 12 10 7"></polyline>
+                    <line x1="15" y1="12" x2="3" y2="12"></line>
+                </svg>
+                Join Challenge
+            </a>
+        </div>
+
+        {% if challenges %}
+        <div class="challenges-grid">
+            {% for challenge in challenges %}
+            <a href="{{ url_for('view_challenge', challenge_id=challenge.id) }}" class="challenge-card {% if challenge.checked_in_today %}checked-in{% endif %}">
+                <div class="challenge-header">
+                    <h3 class="challenge-name">{{ challenge.name }}</h3>
+                    {% if challenge.checked_in_today %}
+                    <span class="badge badge-success">Done</span>
+                    {% else %}
+                    <span class="badge badge-warning">Pending</span>
+                    {% endif %}
+                </div>
+
+                {% if challenge.description %}
+                <p class="challenge-desc">{{ challenge.description }}</p>
+                {% endif %}
+
+                {% if challenge.end_date %}
+                <div class="challenge-end-date">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    Ends {{ challenge.end_date }}
+                </div>
+                {% endif %}
+
+                <div class="challenge-stats">
+                    <div class="challenge-stat">
+                        <span class="challenge-stat-value">{{ challenge.points }}</span>
+                        <span class="challenge-stat-label">Points</span>
+                    </div>
+                    <div class="challenge-stat">
+                        <span class="challenge-stat-value">{{ challenge.current_streak }} &#128293;</span>
+                        <span class="challenge-stat-label">Streak</span>
+                    </div>
+                    <div class="challenge-stat">
+                        <span class="challenge-stat-value">{{ challenge.member_count }}</span>
+                        <span class="challenge-stat-label">Members</span>
+                    </div>
+                </div>
+
+                <div class="challenge-actions">
+                    {% if not challenge.checked_in_today %}
+                    <form action="{{ url_for('checkin', challenge_id=challenge.id) }}" method="POST" class="checkin-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="client_date" class="client-date-field" value="">
+                        <input type="hidden" name="client_timezone" class="timezone-field" value="UTC">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Check In
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="onboarding-empty">
+            <div class="onboarding-hero">
+                <div class="onboarding-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                    </svg>
+                </div>
+                <h2 class="onboarding-title">Ready to build some habits?</h2>
+                <p class="onboarding-subtitle">Challenges keep you accountable. Pick one to get started &mdash; it only takes a few seconds.</p>
+            </div>
+
+            <div class="onboarding-actions">
+                <a href="{{ url_for('explore') }}" class="onboarding-card onboarding-card-primary">
+                    <div class="onboarding-card-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                    <div class="onboarding-card-text">
+                        <span class="onboarding-card-title">Explore Community Challenges</span>
+                        <span class="onboarding-card-desc">Browse challenges others have created and join one that fits your goals.</span>
+                    </div>
+                    <svg class="onboarding-card-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </a>
+
+                <a href="{{ url_for('create_challenge') }}" class="onboarding-card">
+                    <div class="onboarding-card-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                        </svg>
+                    </div>
+                    <div class="onboarding-card-text">
+                        <span class="onboarding-card-title">Start Your Own Challenge</span>
+                        <span class="onboarding-card-desc">Create a custom challenge and invite friends to join you.</span>
+                    </div>
+                    <svg class="onboarding-card-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </a>
+
+                <a href="{{ url_for('join_challenge') }}" class="onboarding-card">
+                    <div class="onboarding-card-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                            <polyline points="10 17 15 12 10 7"></polyline>
+                            <line x1="15" y1="12" x2="3" y2="12"></line>
+                        </svg>
+                    </div>
+                    <div class="onboarding-card-text">
+                        <span class="onboarding-card-title">Join with a Code</span>
+                        <span class="onboarding-card-desc">Got a code from a friend? Enter it to join their challenge.</span>
+                    </div>
+                    <svg class="onboarding-card-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- Completed Challenges -->
+    {% if completed_challenges %}
+    <section class="dashboard-section">
+        <div class="section-header">
+            <h2>Completed Challenges</h2>
+        </div>
+
+        <div class="challenges-grid">
+            {% for challenge in completed_challenges %}
+            <a href="{{ url_for('view_challenge', challenge_id=challenge.id) }}" class="challenge-card challenge-completed">
+                <div class="challenge-header">
+                    <h3 class="challenge-name">{{ challenge.name }}</h3>
+                    <span class="badge badge-accent">Ended</span>
+                </div>
+
+                <div class="winner-banner-mini">
+                    &#127942; Winner: {{ challenge.winner_name or 'N/A' }}
+                </div>
+
+                <div class="challenge-stats">
+                    <div class="challenge-stat">
+                        <span class="challenge-stat-value">{{ challenge.points }}</span>
+                        <span class="challenge-stat-label">Your Points</span>
+                    </div>
+                    <div class="challenge-stat">
+                        <span class="challenge-stat-value">{{ challenge.member_count }}</span>
+                        <span class="challenge-stat-label">Members</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Recent Activity -->
+    {% if recent_activity %}
+    <section class="dashboard-section">
+        <div class="section-header">
+            <h2>Recent Activity</h2>
+        </div>
+
+        <div class="activity-list">
+            {% for activity in recent_activity %}
+            <div class="activity-item">
+                <div class="activity-icon">&#9989;</div>
+                <div class="activity-content">
+                    <span class="activity-text">Checked in to <strong>{{ activity.challenge_name }}</strong></span>
+                    {% if activity.note %}
+                    <span class="activity-note">"{{ activity.note }}"</span>
+                    {% endif %}
+                </div>
+                <span class="activity-date">{{ time_ago(activity.created_at) }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = String(now.getMonth() + 1).padStart(2, '0');
+    var day = String(now.getDate()).padStart(2, '0');
+    var localDate = year + '-' + month + '-' + day;
+    document.querySelectorAll('.client-date-field').forEach(function(el) {
+        el.value = localDate;
+    });
+})();
+</script>
+{% endblock %}

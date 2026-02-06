@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: accountability-arena
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.11.6
+      - key: DATA_DIR
+        value: /data
+      - key: UPLOAD_FOLDER
+        value: /data/uploads
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
