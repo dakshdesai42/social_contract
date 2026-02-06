@@ -1,9 +1,24 @@
 {% extends "base.html" %}
 {% block title %}404 - Page Not Found{% endblock %}
 {% block content %}
-<div class="auth-container" style="text-align: center; padding-top: 4rem;">
-    <h1 style="font-size: 4rem; margin-bottom: 0.5rem; color: var(--accent);">404</h1>
-    <p style="font-size: 1.25rem; color: var(--text-secondary); margin-bottom: 2rem;">Page not found. The page you're looking for doesn't exist.</p>
-    <a href="{{ url_for('index') }}" class="btn btn-primary">Go Home</a>
+<div class="error-page">
+    <div class="error-icon">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M8 15s1.5-2 4-2 4 2 4 2"></path>
+            <line x1="9" y1="9" x2="9.01" y2="9"></line>
+            <line x1="15" y1="9" x2="15.01" y2="9"></line>
+        </svg>
+    </div>
+    <div class="error-code">404</div>
+    <h1 class="error-title">Page not found</h1>
+    <p class="error-message">The page you're looking for doesn't exist or has been moved.</p>
+    <div class="error-actions">
+        {% if session.user_id %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Go to Dashboard</a>
+        {% else %}
+        <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">Go Home</a>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
