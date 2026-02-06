@@ -894,8 +894,9 @@ def view_challenge(challenge_id):
     ).first()
 
     if not membership:
-        flash('You are not a member of this challenge.', 'error')
-        return redirect(url_for('dashboard'))
+        # Redirect non-members to join page with code pre-filled
+        flash(f'Join "{challenge.name}" to view this challenge.', 'info')
+        return redirect(url_for('join_challenge', code=challenge.join_code))
 
     # Build leaderboard
     leaderboard = []
