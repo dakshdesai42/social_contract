@@ -10,6 +10,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_migrate import Migrate
 from authlib.integrations.flask_client import OAuth
+from sqlalchemy.orm import joinedload, selectinload
 from functools import wraps
 import os
 import re
@@ -775,14 +776,34 @@ def dashboard():
     # Get active challenges
     memberships = ChallengeMember.query.filter_by(user_id=user_id).join(Challenge).filter(
         Challenge.is_completed == False
+    ).options(
+        joinedload(ChallengeMember.challenge).joinedload(Challenge.creator)
     ).all()
+
+    active_challenge_ids = [m.challenge_id for m in memberships]
+    member_counts = {}
+    checked_in_today_ids = set()
+
+    if active_challenge_ids:
+        member_counts_rows = db.session.query(
+            ChallengeMember.challenge_id,
+            db.func.count(ChallengeMember.id)
+        ).filter(
+            ChallengeMember.challenge_id.in_(active_challenge_ids)
+        ).group_by(ChallengeMember.challenge_id).all()
+        member_counts = {cid: cnt for cid, cnt in member_counts_rows}
+
+        checked_rows = Checkin.query.with_entities(Checkin.challenge_id).filter(
+            Checkin.user_id == user_id,
+            Checkin.checkin_date == today,
+            Checkin.challenge_id.in_(active_challenge_ids)
+        ).all()
+        checked_in_today_ids = {row.challenge_id for row in checked_rows}
 
     challenges = []
     for m in memberships:
         c = m.challenge
-        checked_in_today = Checkin.query.filter_by(
-            challenge_id=c.id, user_id=user_id, checkin_date=today
-        ).first() is not None
+        checked_in_today = c.id in checked_in_today_ids
 
         challenges.append({
             'id': c.id,
@@ -794,7 +815,7 @@ def dashboard():
             'points_per_checkin': c.points_per_checkin,
             'streak_bonus': c.streak_bonus,
             'creator_name': c.creator.display_name,
-            'member_count': len(c.members),
+            'member_count': member_counts.get(c.id, 0),
             'points': m.points,
             'current_streak': m.current_streak,
             'best_streak': m.best_streak,
@@ -804,7 +825,21 @@ def dashboard():
     # Get completed challenges
     completed_memberships = ChallengeMember.query.filter_by(user_id=user_id).join(Challenge).filter(
         Challenge.is_completed == True
+    ).options(
+        joinedload(ChallengeMember.challenge).joinedload(Challenge.creator),
+        joinedload(ChallengeMember.challenge).joinedload(Challenge.winner)
     ).all()
+
+    completed_challenge_ids = [m.challenge_id for m in completed_memberships]
+    completed_member_counts = {}
+    if completed_challenge_ids:
+        completed_member_counts_rows = db.session.query(
+            ChallengeMember.challenge_id,
+            db.func.count(ChallengeMember.id)
+        ).filter(
+            ChallengeMember.challenge_id.in_(completed_challenge_ids)
+        ).group_by(ChallengeMember.challenge_id).all()
+        completed_member_counts = {cid: cnt for cid, cnt in completed_member_counts_rows}
 
     completed_challenges = []
     for m in completed_memberships:
@@ -815,7 +850,7 @@ def dashboard():
             'end_date': c.end_date,
             'creator_name': c.creator.display_name,
             'winner_name': c.winner.display_name if c.winner else None,
-            'member_count': len(c.members),
+            'member_count': completed_member_counts.get(c.id, 0),
             'points': m.points,
             'current_streak': m.current_streak,
             'best_streak': m.best_streak,
@@ -835,7 +870,9 @@ def dashboard():
     }
 
     # Recent activity
-    recent_checkins = Checkin.query.filter_by(user_id=user_id).order_by(
+    recent_checkins = Checkin.query.filter_by(user_id=user_id).options(
+        joinedload(Checkin.challenge)
+    ).order_by(
         Checkin.created_at.desc()
     ).limit(5).all()
 
@@ -1015,7 +1052,10 @@ def view_challenge(challenge_id):
     user_id = session['user_id']
     today = get_user_today()
 
-    challenge = Challenge.query.get_or_404(challenge_id)
+    challenge = Challenge.query.options(
+        joinedload(Challenge.creator),
+        selectinload(Challenge.members).joinedload(ChallengeMember.user)
+    ).get_or_404(challenge_id)
 
     membership = ChallengeMember.query.filter_by(
         challenge_id=challenge_id, user_id=user_id
@@ -1026,12 +1066,16 @@ def view_challenge(challenge_id):
         flash(f'Join "{challenge.name}" to view this challenge.', 'info')
         return redirect(url_for('join_challenge', code=challenge.join_code))
 
+    checked_today_rows = Checkin.query.with_entities(Checkin.user_id).filter(
+        Checkin.challenge_id == challenge_id,
+        Checkin.checkin_date == today
+    ).all()
+    checked_today_user_ids = {row.user_id for row in checked_today_rows}
+
     # Build leaderboard
     leaderboard = []
     for m in challenge.members:
-        checked_in_today = Checkin.query.filter_by(
-            challenge_id=challenge_id, user_id=m.user_id, checkin_date=today
-        ).first() is not None
+        checked_in_today = m.user_id in checked_today_user_ids
 
         leaderboard.append({
             'display_name': m.user.display_name,
@@ -1046,14 +1090,24 @@ def view_challenge(challenge_id):
 
     leaderboard.sort(key=lambda x: (-x['points'], -x['current_streak']))
 
-    checked_in_today = Checkin.query.filter_by(
-        challenge_id=challenge_id, user_id=user_id, checkin_date=today
-    ).first() is not None
+    checked_in_today = user_id in checked_today_user_ids
 
     # Recent checkins with reactions
     recent_checkins = Checkin.query.filter_by(
         challenge_id=challenge_id
+    ).options(
+        joinedload(Checkin.user),
+        selectinload(Checkin.reactions)
     ).order_by(Checkin.created_at.desc()).limit(20).all()
+
+    recent_checkins_data = [{
+        'id': c.id,
+        'display_name': c.user.display_name if c.user else 'Unknown',
+        'profile_photo': c.user.profile_photo if c.user else None,
+        'created_at': c.created_at,
+        'note': c.note,
+        'photo_url': c.photo_url,
+    } for c in recent_checkins]
 
     reactions_map = {}
     for c in recent_checkins:
@@ -1071,7 +1125,17 @@ def view_challenge(challenge_id):
 
     comments = ChallengeComment.query.filter_by(
         challenge_id=challenge_id
+    ).options(
+        joinedload(ChallengeComment.user)
     ).order_by(ChallengeComment.created_at.desc()).limit(30).all()
+
+    comments_data = [{
+        'id': comment.id,
+        'display_name': comment.user.display_name if comment.user else 'Unknown',
+        'profile_photo': comment.user.profile_photo if comment.user else None,
+        'created_at': comment.created_at,
+        'message': comment.message,
+    } for comment in comments]
 
     # Days remaining
     days_remaining = None
@@ -1134,9 +1198,9 @@ def view_challenge(challenge_id):
                          membership=membership,
                          leaderboard=leaderboard,
                          checked_in_today=checked_in_today,
-                         recent_checkins=recent_checkins,
+                         recent_checkins=recent_checkins_data,
                          reactions_map=reactions_map,
-                         comments=comments,
+                         comments=comments_data,
                          days_remaining=days_remaining,
                          milestone_progress=milestone_progress,
                          checkin_preview=checkin_preview,
@@ -1694,19 +1758,23 @@ def notifications_page():
 def api_leaderboard(challenge_id):
     today = get_user_today()
 
-    challenge = Challenge.query.get_or_404(challenge_id)
+    challenge = Challenge.query.options(
+        selectinload(Challenge.members).joinedload(ChallengeMember.user)
+    ).get_or_404(challenge_id)
+
+    checked_today_rows = Checkin.query.with_entities(Checkin.user_id).filter(
+        Checkin.challenge_id == challenge_id,
+        Checkin.checkin_date == today
+    ).all()
+    checked_today_user_ids = {row.user_id for row in checked_today_rows}
 
     leaderboard = []
     for m in challenge.members:
-        checked_in_today = Checkin.query.filter_by(
-            challenge_id=challenge_id, user_id=m.user_id, checkin_date=today
-        ).first() is not None
-
         leaderboard.append({
             'display_name': m.user.display_name,
             'points': m.points,
             'current_streak': m.current_streak,
-            'checked_in_today': checked_in_today,
+            'checked_in_today': m.user_id in checked_today_user_ids,
         })
 
     leaderboard.sort(key=lambda x: -x['points'])

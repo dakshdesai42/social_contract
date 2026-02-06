@@ -367,21 +367,5 @@
         });
     }
 
-    // ===============================
-    // LIVE COMMENT POLLING
-    // ===============================
-    var commentsSection = document.querySelector('.comments-list');
-    if (commentsSection) {
-        var lastCommentCount = commentsSection.querySelectorAll('.comment-item').length;
-
-        setInterval(function() {
-            fetch('/api/challenge/' + challengeId + '/leaderboard')
-                .then(function(r) { return r.json(); })
-                .then(function() {
-                    // Lightweight poll - a full comment API would be better but this
-                    // at least keeps the notification badge updated via script.js
-                })
-                .catch(function() {});
-        }, 30000);
-    }
+    // No background polling here; base script already handles notification polling.
 })();
