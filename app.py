@@ -345,7 +345,7 @@ def time_ago(dt):
 app.jinja_env.globals['time_ago'] = time_ago
 
 
-def create_notification(user_id, notif_type, title, message, link=None):
+def create_notification(user_id, notif_type, title, message, link=None, commit=True):
     """Create a notification for a user."""
     notification = Notification(
         user_id=user_id,
@@ -355,7 +355,8 @@ def create_notification(user_id, notif_type, title, message, link=None):
         link=link
     )
     db.session.add(notification)
-    db.session.commit()
+    if commit:
+        db.session.commit()
 
 
 def check_achievements(user_id):
@@ -400,7 +401,8 @@ def check_achievements(user_id):
                     user_id, 'achievement_earned',
                     'Achievement Unlocked',
                     f'You earned "{achievement.name}" - {achievement.description}',
-                    url_for('achievements_page')
+                    url_for('achievements_page'),
+                    commit=False
                 )
 
     db.session.commit()
@@ -433,7 +435,8 @@ def check_completed_challenges(user_id):
                     member.user_id, 'challenge_completed',
                     'Challenge Ended',
                     f'"{challenge.name}" has ended. {winner_name} won with {winner_points} points.',
-                    url_for('view_challenge', challenge_id=challenge.id)
+                    url_for('view_challenge', challenge_id=challenge.id),
+                    commit=False
                 )
 
     db.session.commit()
@@ -1422,7 +1425,8 @@ def nudge_user(challenge_id, target_user_id):
         'nudge',
         'You got nudged!',
         f'{sender_name} nudged you to check in to "{challenge.name}". Don\'t break your streak!',
-        url_for('view_challenge', challenge_id=challenge_id)
+        url_for('view_challenge', challenge_id=challenge_id),
+        commit=False
     )
 
     # Email nudge (placeholder until SendGrid/SMTP is configured)

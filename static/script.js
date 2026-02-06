@@ -503,7 +503,9 @@
 
     const QuickCheckin = {
         init() {
-            const forms = $$('.quick-checkin-form');
+            const quickForms = $$('.quick-checkin-form');
+            const cardForms = $$('.checkin-form');
+            const forms = [...quickForms, ...cardForms];
             if (!forms.length) return;
 
             const csrfMeta = $('meta[name="csrf-token"]');
@@ -527,6 +529,7 @@
             btn.innerHTML = '<svg class="spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>';
 
             const formData = new FormData(form);
+            const challengeId = this.getChallengeId(form);
 
             fetch(form.action, {
                 method: 'POST',
@@ -548,31 +551,8 @@
                 // Haptic feedback
                 if (navigator.vibrate) navigator.vibrate(50);
 
-                // Update the pending item to done
-                const item = form.closest('.today-pending-item');
-                if (item) {
-                    item.classList.add('checkin-success-flash');
-                    item.className = 'today-done-item checkin-success-flash';
-                    item.innerHTML = '<span>\u2705</span><span class="today-pending-name">' +
-                        item.querySelector('.today-pending-name').textContent +
-                        '</span><span class="today-pending-meta">+' + data.points_earned + ' pts</span>';
-                }
-
-                // Update the corresponding challenge card badge
-                const challengeId = item ? item.dataset.challengeId : null;
-                if (challengeId) {
-                    const card = $('a.challenge-card[href*="/' + challengeId + '"]');
-                    if (card) {
-                        card.classList.add('checked-in');
-                        const badge = $('.badge', card);
-                        if (badge) {
-                            badge.className = 'badge badge-success';
-                            badge.textContent = 'Done';
-                        }
-                        const checkinForm = $('.checkin-form', card);
-                        if (checkinForm) checkinForm.remove();
-                    }
-                }
+                this.markPendingListDone(challengeId, data.points_earned);
+                this.markChallengeCardDone(challengeId);
 
                 // Update progress bar
                 this.updateProgress();
@@ -584,6 +564,47 @@
                 btn.innerHTML = originalHTML;
                 FlashMessages.show('Something went wrong. Please try again.', 'error');
             });
+        },
+
+        getChallengeId(form) {
+            const explicit = form.dataset.challengeId;
+            if (explicit) return explicit;
+
+            const item = form.closest('.today-pending-item');
+            if (item && item.dataset.challengeId) return item.dataset.challengeId;
+
+            const match = (form.action || '').match(/\/challenge\/(\d+)\/checkin/);
+            return match ? match[1] : null;
+        },
+
+        markPendingListDone(challengeId, pointsEarned) {
+            if (!challengeId) return;
+            const item = $('#today-item-' + challengeId) || $('.today-pending-item[data-challenge-id="' + challengeId + '"]');
+            if (!item || !item.classList.contains('today-pending-item')) return;
+
+            const nameEl = $('.today-pending-name', item);
+            const name = nameEl ? nameEl.textContent : 'Challenge';
+            item.classList.add('checkin-success-flash');
+            item.className = 'today-done-item checkin-success-flash';
+            item.id = 'today-item-' + challengeId;
+            item.innerHTML = '<span>\u2705</span><span class="today-pending-name">' +
+                name +
+                '</span><span class="today-pending-meta">+' + (pointsEarned || 0) + ' pts</span>';
+        },
+
+        markChallengeCardDone(challengeId) {
+            if (!challengeId) return;
+            const card = $$('.challenge-card').find(el => (el.getAttribute('href') || '').includes('/challenge/' + challengeId));
+            if (!card) return;
+
+            card.classList.add('checked-in');
+            const badge = $('.badge', card);
+            if (badge) {
+                badge.className = 'badge badge-success';
+                badge.textContent = 'Done';
+            }
+            const checkinForm = $('.checkin-form', card);
+            if (checkinForm) checkinForm.remove();
         },
 
         updateProgress() {
