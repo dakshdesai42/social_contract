@@ -11,75 +11,79 @@
             <h1 class="page-title">Welcome back, {{ session.display_name }}</h1>
             <p class="header-subtitle">Here's where your challenges stand today.</p>
         </div>
-        <div class="header-actions">
-            <a href="{{ url_for('create_challenge') }}?template=exercise&guided=1" class="btn btn-primary">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="16"></line>
-                    <line x1="8" y1="12" x2="16" y2="12"></line>
-                </svg>
-                Create from Template
-            </a>
-        </div>
     </header>
 
-    <section class="home-layout">
-        <div class="home-summary-card">
-            <span class="home-summary-kicker">Home</span>
-            <h2 class="home-summary-title">
-                {% if today_total > 0 %}
-                Stay consistent today
-                {% else %}
-                Ready to build your first streak?
-                {% endif %}
-            </h2>
-            <p class="home-summary-subtitle">
-                {% if today_total > 0 %}
-                Keep momentum going with one-tap check-ins and invite your accountability circle.
-                {% else %}
-                Start from a template, invite friends, and make your first check-in today.
-                {% endif %}
-            </p>
-            <div class="home-summary-meta">
-                <span class="home-summary-chip">&#128293; {{ today_done }}/{{ today_total }} done today</span>
-                <span class="home-summary-chip">&#9876;&#65039; {{ stats.active_challenges or 0 }} active now</span>
+    <section class="dashboard-top-grid">
+        <article class="dashboard-hero-card">
+            <div class="dashboard-hero-head">
+                <span class="dashboard-kicker">Overview</span>
+                <h2 class="dashboard-hero-title">
+                    {% if today_total > 0 %}
+                    Focus for Today
+                    {% else %}
+                    Launch your first challenge
+                    {% endif %}
+                </h2>
+                <p class="dashboard-hero-subtitle">
+                    {% if today_total > 0 %}
+                    One place for your streaks, check-ins, and next action.
+                    {% else %}
+                    Start from a template and make your first check-in to build momentum.
+                    {% endif %}
+                </p>
             </div>
-            <div class="home-summary-actions">
+
+            <div class="dashboard-health-grid" aria-label="Top Summary">
+                <div class="dashboard-health-item">
+                    <span class="dashboard-health-label">Today</span>
+                    <span class="dashboard-health-value"><span data-count="{{ today_done }}">{{ today_done }}</span>/{{ today_total }}</span>
+                </div>
+                <div class="dashboard-health-item">
+                    <span class="dashboard-health-label">Active</span>
+                    <span class="dashboard-health-value" data-count="{{ stats.active_challenges or 0 }}">{{ stats.active_challenges or 0 }}</span>
+                </div>
+                <div class="dashboard-health-item">
+                    <span class="dashboard-health-label">Current Streak</span>
+                    <span class="dashboard-health-value" data-count="{{ stats.best_current_streak or 0 }}">{{ stats.best_current_streak or 0 }}</span>
+                </div>
+            </div>
+
+            <div class="dashboard-hero-actions">
                 <a href="{{ url_for('create_challenge') }}?template=exercise&guided=1" class="btn btn-primary btn-sm">Create from template</a>
                 <a href="{{ url_for('explore') }}" class="btn btn-ghost btn-sm">Explore challenges</a>
                 <a href="{{ url_for('join_challenge') }}" class="btn btn-ghost btn-sm">Join with code</a>
             </div>
-        </div>
+        </article>
 
-        <section class="metrics-panel" aria-label="Key Metrics">
-            <div class="metrics-panel-header">
-                <span class="metrics-panel-title">Dashboard Metrics</span>
-                <span class="metrics-panel-badge">{{ today_done }}/{{ today_total }} today</span>
+        <aside class="dashboard-metrics-card" aria-label="Key Metrics">
+            <div class="dashboard-metrics-header">
+                <span class="dashboard-metrics-title">Key Metrics</span>
+                <span class="dashboard-metrics-badge">{{ today_done }}/{{ today_total }} done</span>
             </div>
 
-            <div class="metrics-panel-list">
-                <div class="metrics-panel-item">
-                    <span class="metrics-item-icon">&#127942;</span>
-                    <span class="metrics-item-label">Total Points</span>
-                    <span class="metrics-item-value" data-count="{{ stats.total_points or 0 }}">{{ stats.total_points or 0 }}</span>
+            <div class="dashboard-metrics-grid">
+                <div class="dashboard-metric-tile">
+                    <span class="dashboard-metric-icon">&#127942;</span>
+                    <span class="dashboard-metric-label">Total Points</span>
+                    <span class="dashboard-metric-value" data-count="{{ stats.total_points or 0 }}">{{ stats.total_points or 0 }}</span>
                 </div>
-                <div class="metrics-panel-item">
-                    <span class="metrics-item-icon">&#128293;</span>
-                    <span class="metrics-item-label">Current Streak</span>
-                    <span class="metrics-item-value" data-count="{{ stats.best_current_streak or 0 }}">{{ stats.best_current_streak or 0 }}</span>
+                <div class="dashboard-metric-tile">
+                    <span class="dashboard-metric-icon">&#128293;</span>
+                    <span class="dashboard-metric-label">Current Streak</span>
+                    <span class="dashboard-metric-value" data-count="{{ stats.best_current_streak or 0 }}">{{ stats.best_current_streak or 0 }}</span>
                 </div>
-                <div class="metrics-panel-item">
-                    <span class="metrics-item-icon">&#9876;&#65039;</span>
-                    <span class="metrics-item-label">Active Challenges</span>
-                    <span class="metrics-item-value" data-count="{{ stats.active_challenges or 0 }}">{{ stats.active_challenges or 0 }}</span>
+                <div class="dashboard-metric-tile">
+                    <span class="dashboard-metric-icon">&#9876;&#65039;</span>
+                    <span class="dashboard-metric-label">Active Challenges</span>
+                    <span class="dashboard-metric-value" data-count="{{ stats.active_challenges or 0 }}">{{ stats.active_challenges or 0 }}</span>
                 </div>
-                <div class="metrics-panel-item">
-                    <span class="metrics-item-icon">&#11088;</span>
-                    <span class="metrics-item-label">Best Streak</span>
-                    <span class="metrics-item-value" data-count="{{ stats.all_time_best_streak or 0 }}">{{ stats.all_time_best_streak or 0 }}</span>
+                <div class="dashboard-metric-tile">
+                    <span class="dashboard-metric-icon">&#11088;</span>
+                    <span class="dashboard-metric-label">Best Streak</span>
+                    <span class="dashboard-metric-value" data-count="{{ stats.all_time_best_streak or 0 }}">{{ stats.all_time_best_streak or 0 }}</span>
                 </div>
             </div>
-        </section>
+        </aside>
     </section>
 
     {% if show_new_user_onboarding %}

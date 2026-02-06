@@ -5243,77 +5243,100 @@ textarea:focus-visible {
    PHASE C: SCREEN-LEVEL POLISH
    ============================================ */
 
-.home-layout {
+.dashboard-top-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
     gap: 12px;
     margin-bottom: 18px;
+    align-items: stretch;
 }
 
-.home-summary-card {
-    background: linear-gradient(145deg, rgba(20, 184, 122, 0.11), var(--bg-card) 45%);
-    border: 1px solid rgba(20, 184, 122, 0.24);
+.dashboard-hero-card {
+    background: linear-gradient(150deg, rgba(20, 184, 122, 0.13), var(--bg-card) 52%);
+    border: 1px solid rgba(20, 184, 122, 0.26);
     border-radius: var(--radius-lg);
-    padding: 14px 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
 }
 
-.home-summary-kicker {
+.dashboard-hero-head {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.dashboard-kicker {
     font-size: 0.72rem;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--text-muted);
 }
 
-.home-summary-title {
-    font-size: 1.15rem;
+.dashboard-hero-title {
+    font-size: 1.2rem;
     line-height: 1.2;
-    margin-top: 4px;
-    margin-bottom: 4px;
 }
 
-.home-summary-subtitle {
+.dashboard-hero-subtitle {
     font-size: 0.86rem;
     color: var(--text-secondary);
     line-height: 1.45;
-    margin-bottom: 10px;
 }
 
-.home-summary-meta {
-    display: flex;
+.dashboard-health-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
 }
 
-.home-summary-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 10px;
-    border-radius: var(--radius-full);
-    background: var(--bg-elevated);
+.dashboard-health-item {
+    padding: 9px 10px;
+    border-radius: var(--radius-md);
     border: 1px solid var(--border-subtle);
-    font-size: 0.76rem;
-    color: var(--text-secondary);
-}
-
-.home-summary-actions {
+    background: var(--bg-elevated);
     display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 2px;
 }
 
-.metrics-panel {
+.dashboard-health-label {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.dashboard-health-value {
+    font-size: 1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+    line-height: 1.1;
+}
+
+.dashboard-hero-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.dashboard-hero-actions .btn {
+    width: 100%;
+}
+
+.dashboard-metrics-card {
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-subtle);
     background: var(--bg-card);
     padding: 12px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 9px;
 }
 
-.metrics-panel-header {
+.dashboard-metrics-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -5321,14 +5344,14 @@ textarea:focus-visible {
     padding: 2px 2px 4px;
 }
 
-.metrics-panel-title {
+.dashboard-metrics-title {
     font-size: 0.76rem;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--text-muted);
 }
 
-.metrics-panel-badge {
+.dashboard-metrics-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -5342,40 +5365,42 @@ textarea:focus-visible {
     white-space: nowrap;
 }
 
-.metrics-panel-list {
-    display: flex;
-    flex-direction: column;
+.dashboard-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
 }
 
-.metrics-panel-item {
-    display: grid;
-    grid-template-columns: 20px minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 10px;
+.dashboard-metric-tile {
     padding: 10px 11px;
     border-radius: var(--radius-md);
     border: 1px solid var(--border-subtle);
     background: var(--bg-elevated);
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    column-gap: 9px;
+    row-gap: 3px;
+    align-items: center;
 }
 
-.metrics-item-icon {
+.dashboard-metric-icon {
+    grid-row: 1 / span 2;
     font-size: 0.95rem;
     line-height: 1;
     text-align: center;
 }
 
-.metrics-item-label {
-    font-size: 0.79rem;
+.dashboard-metric-label {
+    font-size: 0.72rem;
     color: var(--text-secondary);
     line-height: 1.2;
 }
 
-.metrics-item-value {
-    font-size: 1rem;
+.dashboard-metric-value {
+    font-size: 1.02rem;
     font-weight: 700;
-    color: var(--text-primary);
     font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
     line-height: 1;
 }
 
@@ -5456,20 +5481,12 @@ textarea:focus-visible {
 }
 
 @media (max-width: 960px) {
-    .home-layout {
+    .dashboard-top-grid {
         grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 768px) {
-    .home-summary-actions {
-        width: 100%;
-    }
-
-    .home-summary-actions .btn {
-        width: 100%;
-    }
-
     .challenge-toolbar {
         flex-direction: column;
         align-items: flex-start;
@@ -5487,18 +5504,37 @@ textarea:focus-visible {
         grid-template-columns: 1fr;
     }
 
-    .metrics-panel {
+    .dashboard-hero-card {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .dashboard-health-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .dashboard-health-item:last-child {
+        grid-column: 1 / -1;
+    }
+
+    .dashboard-hero-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-metrics-card {
         padding: 10px;
         gap: 7px;
     }
 
-    .metrics-panel-item {
+    .dashboard-metric-tile {
         padding: 9px 10px;
-        grid-template-columns: 18px minmax(0, 1fr) auto;
-        gap: 8px;
+        column-gap: 8px;
     }
+}
 
-    .metrics-item-label {
-        font-size: 0.76rem;
+@media (max-width: 420px) {
+    .dashboard-metrics-grid {
+        grid-template-columns: 1fr;
     }
 }
