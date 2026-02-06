@@ -216,6 +216,31 @@ class PageViewEvent(db.Model):
     user = db.relationship('User')
 
 
+class WebVitalEvent(db.Model):
+    __tablename__ = 'web_vital_events'
+    __table_args__ = (
+        db.Index('idx_web_vitals_metric_day', 'metric_name', 'metric_date'),
+        db.Index('idx_web_vitals_path_day', 'page_path', 'metric_date'),
+        db.Index('idx_web_vitals_user_day', 'user_id', 'metric_date'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    session_key = db.Column(db.String(64), nullable=True, index=True)
+    metric_name = db.Column(db.String(20), nullable=False)
+    metric_value = db.Column(db.Float, nullable=False)
+    rating = db.Column(db.String(10), nullable=True)
+    page_path = db.Column(db.String(300), nullable=False)
+    country_code = db.Column(db.String(2), nullable=False, default='UN')
+    ip_hash = db.Column(db.String(64), nullable=True)
+    user_agent = db.Column(db.String(256), nullable=True)
+    reported_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    metric_date = db.Column(db.Date, nullable=False, index=True)
+
+    # Relationships
+    user = db.relationship('User')
+
+
 class ChallengeComment(db.Model):
     __tablename__ = 'challenge_comments'
     __table_args__ = (

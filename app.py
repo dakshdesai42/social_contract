@@ -17,6 +17,7 @@ import random
 import string
 import secrets
 import hashlib
+import json
 import logging
 from datetime import datetime, timedelta, date, timezone as tz
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -26,7 +27,7 @@ from markupsafe import Markup
 from models import (
     db, User, Challenge, ChallengeMember, Checkin, CheckinReaction,
     Achievement, UserAchievement, Notification, ChallengeComment, Nudge,
-    PageViewEvent, seed_achievements
+    PageViewEvent, WebVitalEvent, seed_achievements
 )
 from cloudinary_helper import (
     init_cloudinary, upload_profile_photo, upload_checkin_photo,
@@ -113,6 +114,8 @@ TRACKING_COUNTRY_HEADERS = [
     'X-AppEngine-Country',
     'X-Country-Code',
 ]
+
+WEB_VITALS_ALLOWED = {'FCP', 'LCP', 'CLS', 'INP', 'TTFB'}
 
 
 # --- Security Headers ---
@@ -536,7 +539,7 @@ def login_required(f):
 def service_worker():
     """Serve service worker from root scope with dynamic cache version."""
     import hashlib
-    static_files = ['style.css', 'script.js', 'challenge.js', 'create-challenge.js']
+    static_files = ['style.css', 'script.js', 'perf-metrics.js', 'challenge.js', 'create-challenge.js']
     mtimes = ''
     for f in static_files:
         fpath = os.path.join(app.static_folder, f)
@@ -1716,6 +1719,61 @@ def api_unread_count():
     return jsonify({'count': count})
 
 
+@app.route('/api/analytics/web-vitals', methods=['POST'])
+@csrf.exempt
+@limiter.limit("120 per minute")
+def api_web_vitals():
+    if os.environ.get('TRACKING_ENABLED', '1') != '1':
+        return jsonify({'ok': False, 'message': 'Tracking disabled'}), 200
+
+    data = request.get_json(silent=True)
+    if not data:
+        raw_payload = (request.get_data(cache=False, as_text=True) or '').strip()
+        if raw_payload:
+            try:
+                data = json.loads(raw_payload)
+            except Exception:
+                data = None
+
+    if not data:
+        return jsonify({'ok': False, 'message': 'No payload'}), 400
+
+    metric_name = str(data.get('name', '')).upper().strip()
+    metric_value = data.get('value')
+    page_path = str(data.get('path', request.path)).strip()[:300]
+    rating = str(data.get('rating', '')).lower().strip()[:10] or None
+
+    if metric_name not in WEB_VITALS_ALLOWED:
+        return jsonify({'ok': False, 'message': 'Invalid metric'}), 400
+
+    try:
+        metric_value = float(metric_value)
+    except (TypeError, ValueError):
+        return jsonify({'ok': False, 'message': 'Invalid value'}), 400
+
+    try:
+        event = WebVitalEvent(
+            user_id=session.get('user_id'),
+            session_key=get_tracking_session_key(),
+            metric_name=metric_name,
+            metric_value=metric_value,
+            rating=rating,
+            page_path=page_path or '/',
+            country_code=get_country_code(),
+            ip_hash=get_hashed_ip(),
+            user_agent=(request.user_agent.string or '')[:256],
+            reported_at=datetime.now(tz.utc),
+            metric_date=get_user_today()
+        )
+        db.session.add(event)
+        db.session.commit()
+        return jsonify({'ok': True}), 201
+    except Exception as err:
+        db.session.rollback()
+        logger.warning(f'Web vitals tracking failed: {err}')
+        return jsonify({'ok': False, 'message': 'Server error'}), 500
+
+
 # --- Admin: Emergency Delete Check-in ---
 
 def is_admin():
@@ -1791,6 +1849,36 @@ def analytics_dashboard():
         reverse=True
     )[:10]
 
+    vitals_events = WebVitalEvent.query.filter(
+        WebVitalEvent.metric_date >= start_date,
+        WebVitalEvent.metric_date <= end_date
+    ).all()
+
+    vitals_map = {}
+    for event in vitals_events:
+        if event.metric_name not in vitals_map:
+            vitals_map[event.metric_name] = []
+        vitals_map[event.metric_name].append(event.metric_value)
+
+    def percentile_75(values):
+        if not values:
+            return None
+        ordered = sorted(values)
+        idx = int(round(0.75 * (len(ordered) - 1)))
+        return ordered[idx]
+
+    vitals_summary = []
+    for name in ['LCP', 'INP', 'CLS', 'FCP', 'TTFB']:
+        values = vitals_map.get(name, [])
+        p75 = percentile_75(values)
+        avg = round(sum(values) / len(values), 2) if values else None
+        vitals_summary.append({
+            'name': name,
+            'samples': len(values),
+            'avg': avg,
+            'p75': round(p75, 2) if p75 is not None else None
+        })
+
     return render_template(
         'analytics.html',
         days=days,
@@ -1802,7 +1890,8 @@ def analytics_dashboard():
         unique_pages=len(top_pages),
         top_countries=top_countries,
         top_pages=top_pages_list,
-        dau_trend=dau_trend
+        dau_trend=dau_trend,
+        vitals_summary=vitals_summary
     )
 
 

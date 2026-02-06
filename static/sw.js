@@ -11,6 +11,7 @@ const PAGES_CACHE = CACHE_VERSION + '-pages';
 const PRECACHE_ASSETS = [
     '/static/style.css',
     '/static/script.js',
+    '/static/perf-metrics.js',
     '/static/manifest.json',
     '/static/icons/icon-192.png',
     '/static/icons/icon-512.png',

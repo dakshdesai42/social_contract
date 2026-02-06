@@ -96,6 +96,29 @@
 
     <section class="dashboard-section">
         <div class="section-header">
+            <h2>Web Vitals (Range)</h2>
+        </div>
+        <div class="leaderboard">
+            {% for row in vitals_summary %}
+            <div class="leaderboard-row">
+                <div class="leaderboard-user">
+                    <div class="leaderboard-avatar">{{ row.name }}</div>
+                    <div class="leaderboard-name">{{ row.name }} (samples: {{ row.samples }})</div>
+                </div>
+                <div class="leaderboard-score">
+                    {% if row.p75 is not none %}
+                    p75: {{ row.p75 }} | avg: {{ row.avg }}
+                    {% else %}
+                    no data
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="dashboard-section">
+        <div class="section-header">
             <h2>Most Used Pages</h2>
         </div>
         {% if top_pages %}
