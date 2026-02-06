@@ -5293,53 +5293,52 @@ textarea:focus-visible {
     color: var(--text-primary);
 }
 
-.compact-metrics {
-    margin-bottom: 18px;
-    padding: 12px 14px;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-subtle);
-    background: var(--bg-card);
-}
-
-.compact-metrics-header {
-    margin-bottom: 10px;
-}
-
-.compact-metrics-header h2 {
-    font-size: 0.82rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-}
-
-.compact-metrics-grid {
+.mini-stats {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 8px;
+    margin-bottom: 16px;
 }
 
-.compact-metric-item {
-    padding: 10px;
-    border-radius: var(--radius-md);
-    background: var(--bg-elevated);
+.mini-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-lg);
     border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    min-height: 58px;
+}
+
+.mini-stat-icon {
+    font-size: 1rem;
+    line-height: 1;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.mini-stat-content {
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 
-.compact-metric-label {
-    font-size: 0.7rem;
+.mini-stat-label {
+    font-size: 0.68rem;
     color: var(--text-muted);
-    line-height: 1.2;
+    line-height: 1.1;
+    white-space: nowrap;
 }
 
-.compact-metric-value {
-    font-size: 1.1rem;
+.mini-stat-value {
+    font-size: 1rem;
     font-weight: 700;
-    line-height: 1.1;
     color: var(--text-primary);
     font-variant-numeric: tabular-nums;
+    line-height: 1.1;
 }
 
 .challenge-toolbar {
@@ -5447,7 +5446,12 @@ textarea:focus-visible {
         grid-template-columns: 1fr;
     }
 
-    .compact-metrics-grid {
+    .mini-stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mini-stat-card {
+        min-height: 54px;
+        padding: 9px 10px;
     }
 }

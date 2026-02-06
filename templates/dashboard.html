@@ -92,26 +92,33 @@
     </div>
     {% endif %}
 
-    <section class="compact-metrics">
-        <div class="compact-metrics-header">
-            <h2>Key Metrics</h2>
+    <section class="mini-stats" aria-label="Key Metrics">
+        <div class="mini-stat-card">
+            <span class="mini-stat-icon">&#127942;</span>
+            <div class="mini-stat-content">
+                <span class="mini-stat-label">Total Points</span>
+                <span class="mini-stat-value" data-count="{{ stats.total_points or 0 }}">{{ stats.total_points or 0 }}</span>
+            </div>
         </div>
-        <div class="compact-metrics-grid">
-            <div class="compact-metric-item">
-                <span class="compact-metric-label">Total Points</span>
-                <span class="compact-metric-value" data-count="{{ stats.total_points or 0 }}">{{ stats.total_points or 0 }}</span>
+        <div class="mini-stat-card">
+            <span class="mini-stat-icon">&#128293;</span>
+            <div class="mini-stat-content">
+                <span class="mini-stat-label">Current Streak</span>
+                <span class="mini-stat-value" data-count="{{ stats.best_current_streak or 0 }}">{{ stats.best_current_streak or 0 }}</span>
             </div>
-            <div class="compact-metric-item">
-                <span class="compact-metric-label">Current Streak</span>
-                <span class="compact-metric-value" data-count="{{ stats.best_current_streak or 0 }}">{{ stats.best_current_streak or 0 }}</span>
+        </div>
+        <div class="mini-stat-card">
+            <span class="mini-stat-icon">&#9876;&#65039;</span>
+            <div class="mini-stat-content">
+                <span class="mini-stat-label">Active Challenges</span>
+                <span class="mini-stat-value" data-count="{{ stats.active_challenges or 0 }}">{{ stats.active_challenges or 0 }}</span>
             </div>
-            <div class="compact-metric-item">
-                <span class="compact-metric-label">Active Challenges</span>
-                <span class="compact-metric-value" data-count="{{ stats.active_challenges or 0 }}">{{ stats.active_challenges or 0 }}</span>
-            </div>
-            <div class="compact-metric-item">
-                <span class="compact-metric-label">Best Streak Ever</span>
-                <span class="compact-metric-value" data-count="{{ stats.all_time_best_streak or 0 }}">{{ stats.all_time_best_streak or 0 }}</span>
+        </div>
+        <div class="mini-stat-card">
+            <span class="mini-stat-icon">&#11088;</span>
+            <div class="mini-stat-content">
+                <span class="mini-stat-label">Best Streak</span>
+                <span class="mini-stat-value" data-count="{{ stats.all_time_best_streak or 0 }}">{{ stats.all_time_best_streak or 0 }}</span>
             </div>
         </div>
     </section>
